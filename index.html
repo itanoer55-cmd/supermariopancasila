@@ -1,0 +1,2249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Super Pancasila Bros - Petualangan Kelas V</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Press Start 2P (Retro Mario) & Plus Jakarta Sans (Jelas dibaca untuk soal) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sky-mario: #5C94FC;
+            --brick-red: #C84C0C;
+            --gold-block: #F8B800;
+            --pipe-green: #00A800;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #1e293b;
+            background-image: radial-gradient(circle at 50% 0%, #3b82f6 0%, #1d4ed8 45%, #0f172a 100%);
+            min-height: 100vh;
+            margin: 0;
+            color: #1e293b;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
+        }
+
+        .font-pixel {
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .font-display {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Retro Mario Box Border */
+        .mario-card {
+            background: #FFFDF5;
+            border: 4px solid #1E293B;
+            box-shadow: 0 8px 0 #1E293B, inset 0 4px 0 #FFFFFF;
+            border-radius: 1.25rem;
+        }
+
+        .mario-hud {
+            background: #111827;
+            border: 3px solid #F8B800;
+            box-shadow: 0 4px 0 #000000;
+        }
+
+        /* Tombol Arcade 3D */
+        .btn-arcade {
+            position: relative;
+            top: 0;
+            border: 3px solid #1E293B;
+            transition: transform 0.08s ease, top 0.08s ease, box-shadow 0.08s ease;
+            touch-action: manipulation;
+        }
+
+        .btn-arcade:active:not(:disabled),
+        .btn-arcade.pressed {
+            top: 4px;
+            box-shadow: 0 1px 0 #1E293B !important;
+        }
+
+        .btn-mario-red {
+            background: linear-gradient(180deg, #EF4444 0%, #DC2626 100%);
+            box-shadow: 0 6px 0 #7F1D1D;
+            color: #FFFFFF;
+        }
+
+        .btn-mario-gold {
+            background: linear-gradient(180deg, #FDE047 0%, #F59E0B 100%);
+            box-shadow: 0 6px 0 #92400E;
+            color: #451A03;
+        }
+
+        .btn-mario-green {
+            background: linear-gradient(180deg, #22C55E 0%, #16A34A 100%);
+            box-shadow: 0 6px 0 #14532D;
+            color: #FFFFFF;
+        }
+
+        .btn-mario-blue {
+            background: linear-gradient(180deg, #38BDF8 0%, #0284C7 100%);
+            box-shadow: 0 6px 0 #0C4A6E;
+            color: #FFFFFF;
+        }
+
+        /* Opsi Soal */
+        .btn-option {
+            background: #FFFFFF;
+            border: 2.5px solid #CBD5E1;
+            box-shadow: 0 4px 0 #94A3B8;
+            transition: all 0.12s ease;
+        }
+
+        .btn-option:hover:not(:disabled) {
+            border-color: #F59E0B;
+            background: #FEF9C3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #D97706;
+        }
+
+        .btn-option.selected {
+            border-color: #2563EB;
+            background: #DBEAFE;
+            box-shadow: 0 4px 0 #1D4ED8;
+        }
+
+        .btn-option.correct {
+            border-color: #16A34A !important;
+            background: #DCFCE7 !important;
+            box-shadow: 0 4px 0 #15803D !important;
+            color: #14532D !important;
+        }
+
+        .btn-option.wrong {
+            border-color: #DC2626 !important;
+            background: #FEE2E2 !important;
+            box-shadow: 0 4px 0 #B91C1C !important;
+            color: #7F1D1D !important;
+        }
+
+        /* Canvas Container */
+        #game-canvas-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            max-height: 62vh;
+            background: #5C94FC;
+            border: 4px solid #111827;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+        }
+
+        #game-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.92) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-pop {
+            animation: popIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes bounceSlow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-bounce-slow {
+            animation: bounceSlow 2.2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-2 sm:p-4">
+
+    <!-- ========================================================= -->
+    <!-- LAYAR 1: HALAMAN AWAL & IDENTITAS SISWA                   -->
+    <!-- ========================================================= -->
+    <section id="screen-start" class="w-full max-w-xl mx-auto my-auto animate-pop">
+        <div class="mario-card overflow-hidden">
+            <!-- Banner Langit Super Mario -->
+            <div class="relative bg-[#5C94FC] px-5 pt-7 pb-8 text-center border-b-4 border-[#1E293B] overflow-hidden">
+                <!-- Awan Dekorasi -->
+                <div class="absolute top-3 left-6 w-16 h-6 bg-white rounded-full opacity-90"></div>
+                <div class="absolute top-6 right-8 w-20 h-7 bg-white rounded-full opacity-90"></div>
+
+                <!-- Badge Kurikulum -->
+                <div class="inline-block px-3 py-1 rounded-full bg-yellow-300 border-2 border-slate-900 text-slate-900 font-extrabold text-[11px] sm:text-xs mb-3 shadow">
+                    🇮🇩 PENDIDIKAN PANCASILA KELAS V • ASAS GANJIL 2026/2027
+                </div>
+
+                <!-- Judul Game Retro -->
+                <div class="bg-[#C84C0C] border-4 border-slate-900 rounded-2xl p-3 sm:p-4 shadow-[0_6px_0_#1E293B] inline-block mb-3">
+                    <h1 class="font-pixel text-lg sm:text-2xl text-yellow-300 drop-shadow-[3px_3px_0_#000] leading-snug">
+                        SUPER PANCASILA<br>BROS
+                    </h1>
+                </div>
+
+                <p class="text-white font-bold text-xs sm:text-sm drop-shadow-[1px_1px_0_#1E293B]">
+                    Lompat, Sundul Blok <span class="inline-block px-1.5 py-0.5 bg-yellow-400 text-slate-900 rounded font-pixel text-[10px]">?</span>, Jawab 40 Soal, & Kirim ke Bu Ita!
+                </p>
+
+                <!-- Dekorasi Rumput & Bata Bawah Banner -->
+                <div class="absolute bottom-0 left-0 right-0 h-3 bg-[#00A800] border-t-2 border-slate-900"></div>
+            </div>
+
+            <!-- Form Identitas Siswa -->
+            <div class="p-5 sm:p-6">
+                <div id="start-error" class="hidden mb-4 p-3 rounded-xl bg-red-100 border-2 border-red-500 text-red-800 text-xs sm:text-sm font-bold">
+                    ⚠️ Mohon isi Nama Lengkap dan Nomor Absen terlebih dahulu ya!
+                </div>
+
+                <div class="space-y-3.5 bg-amber-50 p-4 rounded-2xl border-2 border-amber-300 mb-5">
+                    <div>
+                        <label for="input-nama" class="block text-xs sm:text-sm font-extrabold text-slate-700 mb-1">
+                            👤 Nama Lengkap Siswa <span class="text-red-600">*</span>
+                        </label>
+                        <input type="text" id="input-nama" placeholder="Contoh: Siti Aisyah"
+                            class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none font-bold text-slate-800 bg-white">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="input-absen" class="block text-xs sm:text-sm font-extrabold text-slate-700 mb-1">
+                                🔢 No. Absen <span class="text-red-600">*</span>
+                            </label>
+                            <input type="number" id="input-absen" min="1" max="50" placeholder="Contoh: 7"
+                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none font-bold text-slate-800 bg-white">
+                        </div>
+                        <div>
+                            <label for="input-kelas" class="block text-xs sm:text-sm font-extrabold text-slate-700 mb-1">
+                                🏫 Kelas
+                            </label>
+                            <input type="text" id="input-kelas" value="Kelas V"
+                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none font-bold text-slate-800 bg-white">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cara Bermain Singkat -->
+                <div class="grid grid-cols-3 gap-2 mb-5 text-center">
+                    <div class="p-2.5 rounded-xl bg-sky-50 border-2 border-sky-200">
+                        <div class="text-xl mb-0.5">🕹️</div>
+                        <div class="text-[11px] font-bold text-sky-900">Gerak & Lompat</div>
+                        <div class="text-[10px] text-sky-700">Panah / Tombol HP</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-yellow-50 border-2 border-yellow-300">
+                        <div class="text-xl mb-0.5">❓</div>
+                        <div class="text-[11px] font-bold text-amber-900">Sundul Blok ?</div>
+                        <div class="text-[10px] text-amber-700">40 Soal Kisi-Kisi</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-emerald-50 border-2 border-emerald-200">
+                        <div class="text-xl mb-0.5">📲</div>
+                        <div class="text-[11px] font-bold text-emerald-900">Kirim WA Bu Ita</div>
+                        <div class="text-[10px] text-emerald-700">082313237217</div>
+                    </div>
+                </div>
+
+                <button onclick="startGame()" class="w-full py-4 px-5 rounded-2xl btn-arcade btn-mario-red font-pixel text-xs sm:text-sm tracking-wide cursor-pointer flex items-center justify-center gap-2">
+                    <span>▶</span>
+                    <span>MULAI PETUALANGAN!</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- LAYAR 2: ARENA PLATFORMER ALA SUPER MARIO                 -->
+    <!-- ========================================================= -->
+    <section id="screen-game" class="hidden w-full max-w-5xl mx-auto">
+        <!-- HUD RETRO ATAS -->
+        <div class="mario-hud rounded-2xl px-3 py-2.5 sm:px-5 sm:py-3 mb-3 flex flex-wrap items-center justify-between gap-2 text-white">
+            <div class="flex items-center gap-3 sm:gap-5">
+                <div>
+                    <div class="font-pixel text-[9px] text-yellow-300">PEMAIN</div>
+                    <div id="hud-name" class="font-bold text-xs sm:text-sm truncate max-w-[120px] sm:max-w-[180px]">Siswa</div>
+                </div>
+                <div>
+                    <div class="font-pixel text-[9px] text-yellow-300">KOIN</div>
+                    <div class="font-pixel text-xs sm:text-sm text-amber-300">🪙 <span id="hud-coins">0</span></div>
+                </div>
+                <div>
+                    <div class="font-pixel text-[9px] text-yellow-300">POS SOAL</div>
+                    <div class="font-pixel text-xs sm:text-sm text-emerald-300"><span id="hud-progress">0</span>/40</div>
+                </div>
+                <div class="hidden sm:block">
+                    <div class="font-pixel text-[9px] text-yellow-300">WAKTU</div>
+                    <div id="hud-timer" class="font-pixel text-xs sm:text-sm text-sky-300">00:00</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <button onclick="openMapModal()" class="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 border-2 border-indigo-300 text-white font-bold text-xs transition cursor-pointer">
+                    🗺️ Peta Pos
+                </button>
+                <button onclick="openFinishConfirm()" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 border-2 border-emerald-300 text-white font-bold text-xs transition cursor-pointer">
+                    🏁 Selesai
+                </button>
+                <button onclick="toggleSound()" id="btn-sound" class="px-2.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 border-2 border-slate-400 text-sm transition cursor-pointer" title="Suara">
+                    🔊
+                </button>
+            </div>
+        </div>
+
+        <!-- ARENA CANVAS SUPER MARIO -->
+        <div id="game-canvas-wrapper">
+            <canvas id="game-canvas"></canvas>
+
+            <!-- Info Zona / Petunjuk Mini Mengambang di Pojok Atas Canvas -->
+            <div id="zone-banner" class="pointer-events-none absolute top-2.5 left-3 bg-slate-900/75 text-yellow-300 font-pixel text-[9px] sm:text-[11px] px-3 py-1.5 rounded-lg border border-yellow-400/70">
+                DUNIA 1-1: PADANG PANCASILA
+            </div>
+
+            <!-- Pesan Toast di Canvas (Misal: +10 Koin / Injak Jamur!) -->
+            <div id="canvas-toast" class="pointer-events-none hidden absolute top-2.5 right-3 bg-emerald-600/95 text-white font-bold text-xs px-3 py-1.5 rounded-lg border-2 border-white shadow">
+                🌟 Hebat!
+            </div>
+        </div>
+
+        <!-- KONTROL SENTUH & TOMBOL AKSI DI LUAR CANVAS (MOBILE & DESKTOP FRIENDLY) -->
+        <div class="mt-3 flex flex-wrap items-center justify-between gap-3 bg-slate-900/80 border-2 border-slate-700 rounded-2xl p-3">
+            <!-- D-Pad Kiri / Kanan -->
+            <div class="flex items-center gap-2.5">
+                <button id="btn-left" class="w-16 h-14 sm:w-20 sm:h-14 rounded-2xl btn-arcade btn-mario-blue font-display text-xl sm:text-2xl font-bold flex items-center justify-center cursor-pointer" aria-label="Jalan Kiri">
+                    ◀️
+                </button>
+                <button id="btn-right" class="w-16 h-14 sm:w-20 sm:h-14 rounded-2xl btn-arcade btn-mario-blue font-display text-xl sm:text-2xl font-bold flex items-center justify-center cursor-pointer" aria-label="Jalan Kanan">
+                    ▶️
+                </button>
+            </div>
+
+            <!-- Petunjuk Tengah (Desktop) -->
+            <div class="hidden md:block text-center text-slate-300 text-xs font-semibold">
+                Gunakan <kbd class="px-1.5 py-0.5 bg-slate-700 rounded border border-slate-500 text-yellow-300">◀</kbd>
+                <kbd class="px-1.5 py-0.5 bg-slate-700 rounded border border-slate-500 text-yellow-300">▶</kbd>
+                & <kbd class="px-1.5 py-0.5 bg-slate-700 rounded border border-slate-500 text-yellow-300">SPASI</kbd> untuk melompat & menyundul blok <strong class="text-yellow-300">?</strong><br>
+                <span class="text-[11px] text-slate-400">Atau klik langsung pada Blok <strong>?</strong> di layar untuk membuka soal!</span>
+            </div>
+
+            <!-- Tombol Buka Soal Terdekat & Lompat -->
+            <div class="flex items-center gap-2.5">
+                <button onclick="openNearestUnanswered()" class="h-14 px-3.5 sm:px-4 rounded-2xl btn-arcade btn-mario-gold font-display text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer" title="Lompat ke Blok Soal Berikutnya">
+                    <span class="text-lg">❓</span>
+                    <span>Soal Berikut</span>
+                </button>
+                <button id="btn-jump" class="w-20 h-14 sm:w-24 sm:h-14 rounded-2xl btn-arcade btn-mario-red font-display text-sm sm:text-base font-bold flex items-center justify-center gap-1 cursor-pointer" aria-label="Lompat">
+                    <span>⬆️</span>
+                    <span>LOMPAT</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- LAYAR 3: KASTIL KEMENANGAN & KIRIM WA BU ITA              -->
+    <!-- ========================================================= -->
+    <section id="screen-result" class="hidden w-full max-w-2xl mx-auto animate-pop my-2">
+        <div class="mario-card overflow-hidden">
+            <div class="bg-[#5C94FC] p-6 text-center border-b-4 border-slate-900 relative">
+                <div class="inline-block px-4 py-1 rounded-full bg-yellow-300 border-2 border-slate-900 font-pixel text-[10px] text-slate-900 mb-3">
+                    🏰 STAGE CLEAR! KASTIL PANCASILA
+                </div>
+                <div id="result-trophy" class="text-6xl mb-2 animate-bounce-slow">🏆</div>
+                <h2 id="result-predicate" class="font-display text-2xl sm:text-3xl font-bold text-white drop-shadow-[2px_2px_0_#1E293B]">
+                    Luar Biasa! Pahlawan Pancasila!
+                </h2>
+                <p id="result-student-info" class="text-yellow-100 font-bold text-sm mt-1 drop-shadow-[1px_1px_0_#1E293B]">
+                    Nama • Kelas V • Absen 1
+                </p>
+            </div>
+
+            <div class="p-5 sm:p-7 text-center">
+                <!-- Skor Utama -->
+                <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+                    <div class="w-32 h-32 rounded-full bg-gradient-to-b from-red-500 to-red-700 p-2 border-4 border-slate-900 shadow-lg flex items-center justify-center">
+                        <div class="w-full h-full rounded-full bg-white flex flex-col items-center justify-center">
+                            <span class="text-[10px] font-extrabold text-slate-400 uppercase">Nilai Akhir</span>
+                            <span id="result-score" class="font-display text-4xl font-bold text-red-600">100</span>
+                            <span class="text-[11px] font-bold text-amber-600">skala 100</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5 text-left flex-1 min-w-[210px]">
+                        <div class="p-3 rounded-xl bg-rose-50 border-2 border-rose-200">
+                            <div class="text-[11px] font-bold text-rose-600">Pilihan Ganda</div>
+                            <div class="font-display text-xl font-bold text-rose-800"><span id="res-pg">0</span>/20 Benar</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-amber-50 border-2 border-amber-200">
+                            <div class="text-[11px] font-bold text-amber-700">Isian Singkat</div>
+                            <div class="font-display text-xl font-bold text-amber-900"><span id="res-isian">0</span>/20 Benar</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-yellow-50 border-2 border-yellow-300">
+                            <div class="text-[11px] font-bold text-yellow-700">Total Koin</div>
+                            <div class="font-display text-xl font-bold text-yellow-900">🪙 <span id="res-coins">0</span></div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-sky-50 border-2 border-sky-200">
+                            <div class="text-[11px] font-bold text-sky-700">Durasi Main</div>
+                            <div id="res-time" class="font-display text-base font-bold text-sky-900">0 menit</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Catatan Soal Salah -->
+                <div class="text-left p-4 rounded-2xl bg-slate-100 border-2 border-slate-300 mb-6">
+                    <div class="font-bold text-xs sm:text-sm text-slate-800 mb-1">📋 Rekap Nomor yang Perlu Dipelajari Lagi:</div>
+                    <p id="res-wrong-list" class="text-xs sm:text-sm text-slate-600 font-semibold"></p>
+                </div>
+
+                <!-- Tombol Kirim WA Bu Ita -->
+                <div class="space-y-3">
+                    <button onclick="sendToWhatsApp()" class="w-full py-4 px-5 rounded-2xl btn-arcade btn-mario-green font-display text-lg sm:text-xl font-bold flex items-center justify-center gap-3 cursor-pointer">
+                        <svg class="w-7 h-7 fill-current shrink-0" viewBox="0 0 24 24">
+                            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zM12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.546 20.2c-.151.512.333.996.845.845l3.032-.892C7.931 21.075 9.7 21.6 11.6 21.6c5.523 0 10-4.477 10-10S17.523 2 12 2z"/>
+                        </svg>
+                        <span>Kirim Hasil ke WA Bu Ita (082313237217)</span>
+                    </button>
+
+                    <div id="copy-toast" class="hidden p-2.5 rounded-xl bg-emerald-100 border-2 border-emerald-500 text-emerald-900 text-xs font-bold">
+                        ✅ Teks laporan berhasil disalin! Silakan tempel di WhatsApp Bu Ita.
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="copyReport()" class="py-3 px-4 rounded-xl btn-arcade btn-mario-gold font-bold text-sm cursor-pointer">
+                            📋 Salin Laporan
+                        </button>
+                        <button onclick="restartGame()" class="py-3 px-4 rounded-xl btn-arcade bg-slate-200 hover:bg-slate-300 text-slate-800 shadow-[0_5px_0_#64748B] font-bold text-sm cursor-pointer">
+                            🔄 Main Lagi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- MODAL KOTAK SOAL (MUNCUL SAAT MENYUNDUL BLOK ?)           -->
+    <!-- ========================================================= -->
+    <div id="modal-question" class="hidden fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="mario-card w-full max-w-2xl max-h-[92vh] overflow-y-auto animate-pop">
+            <!-- Header Modal Soal -->
+            <div class="bg-[#F8B800] px-4 py-3 sm:px-6 sm:py-4 border-b-4 border-slate-900 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-3">
+                    <div id="mq-num" class="w-10 h-10 rounded-xl bg-[#C84C0C] text-yellow-300 border-2 border-slate-900 font-pixel text-sm flex items-center justify-center shadow">
+                        1
+                    </div>
+                    <div>
+                        <span id="mq-type" class="inline-block px-2 py-0.5 rounded bg-slate-900 text-yellow-300 font-extrabold text-[10px] uppercase tracking-wider">
+                            PILIHAN GANDA
+                        </span>
+                        <div id="mq-element" class="text-xs font-bold text-slate-900 mt-0.5">Pancasila</div>
+                    </div>
+                </div>
+                <button onclick="closeQuestionModal()" class="w-9 h-9 rounded-xl bg-red-600 hover:bg-red-500 text-white border-2 border-slate-900 font-bold text-base cursor-pointer" title="Tutup & Kembali ke Arena">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Isi Modal Soal -->
+            <div class="p-4 sm:p-6">
+                <div id="mq-illustration" class="hidden mb-4 p-3.5 rounded-xl bg-amber-50 border-2 border-amber-300 text-xs sm:text-sm text-slate-800 leading-relaxed"></div>
+
+                <h3 id="mq-text" class="text-base sm:text-lg font-bold text-slate-900 leading-relaxed mb-4"></h3>
+
+                <div id="mq-instruction" class="hidden mb-3 px-3 py-2 rounded-xl bg-sky-50 border border-sky-300 text-sky-900 text-xs font-bold"></div>
+
+                <!-- Container PG / PG Kompleks -->
+                <div id="mq-options" class="space-y-2.5"></div>
+
+                <!-- Container Isian -->
+                <div id="mq-isian" class="hidden space-y-3">
+                    <input type="text" id="mq-isian-input" autocomplete="off" placeholder="Ketik jawaban singkatmu di sini..."
+                        class="w-full px-4 py-3.5 rounded-xl border-3 border-slate-400 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none font-bold text-base sm:text-lg text-slate-900 bg-white">
+                    <button id="mq-btn-isian" onclick="submitIsian()" class="px-5 py-3 rounded-xl btn-arcade btn-mario-gold font-bold text-sm cursor-pointer">
+                        ✅ Kirim Jawaban
+                    </button>
+                </div>
+
+                <!-- Tombol Submit PG Kompleks -->
+                <div id="mq-pgk-submit" class="hidden mt-4">
+                    <button onclick="submitPGKompleks()" class="px-5 py-3 rounded-xl btn-arcade btn-mario-gold font-bold text-sm cursor-pointer">
+                        ✅ Periksa 2 Pilihan Saya
+                    </button>
+                </div>
+
+                <!-- Kotak Pembahasan -->
+                <div id="mq-feedback" class="hidden mt-5 p-4 rounded-2xl border-2 animate-pop">
+                    <div class="flex items-start gap-3">
+                        <span id="mq-fb-icon" class="text-3xl shrink-0">🌟</span>
+                        <div class="flex-1">
+                            <h4 id="mq-fb-title" class="font-display font-bold text-lg"></h4>
+                            <p id="mq-fb-key" class="hidden text-xs sm:text-sm font-extrabold mt-1"></p>
+                            <p id="mq-fb-text" class="text-xs sm:text-sm mt-1 leading-relaxed"></p>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex flex-wrap justify-end gap-2">
+                        <button onclick="closeQuestionModal()" class="px-4 py-2.5 rounded-xl btn-arcade btn-mario-blue font-bold text-xs sm:text-sm cursor-pointer">
+                            🏃 Lanjut Berjalan
+                        </button>
+                        <button id="mq-btn-warp-next" onclick="warpToNextQuestion()" class="px-4 py-2.5 rounded-xl btn-arcade btn-mario-green font-bold text-xs sm:text-sm cursor-pointer">
+                            ⚡ Lanjut Pos Berikutnya
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL PETA POS SOAL (1 - 40)                              -->
+    <!-- ========================================================= -->
+    <div id="modal-map" class="hidden fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="mario-card w-full max-w-lg p-5 animate-pop">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b-2 border-slate-200">
+                <h3 class="font-display text-xl font-bold text-slate-900">🗺️ Peta 40 Pos Blok Soal</h3>
+                <button onclick="closeMapModal()" class="w-8 h-8 rounded-lg bg-red-100 text-red-700 font-bold cursor-pointer">✕</button>
+            </div>
+            <p class="text-xs text-slate-600 mb-3 font-semibold">Klik nomor pos mana saja untuk memindahkan karaktermu langsung ke blok tersebut!</p>
+
+            <div class="flex flex-wrap gap-3 text-[11px] font-bold mb-3">
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-500 inline-block"></span> Benar</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-500 inline-block"></span> Salah</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-300 border border-slate-800 inline-block"></span> Belum Dibuka (?)</span>
+            </div>
+
+            <div class="max-h-64 overflow-y-auto pr-1">
+                <div class="text-xs font-extrabold text-red-700 mb-1.5">Bagian A: Pilihan Ganda & PG Kompleks (1–20)</div>
+                <div id="map-grid-pg" class="grid grid-cols-5 sm:grid-cols-10 gap-1.5 mb-4"></div>
+
+                <div class="text-xs font-extrabold text-amber-700 mb-1.5">Bagian B: Isian Singkat (21–40)</div>
+                <div id="map-grid-isian" class="grid grid-cols-5 sm:grid-cols-10 gap-1.5"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL KONFIRMASI SELESAI (PENGGANTI confirm())            -->
+    <!-- ========================================================= -->
+    <div id="modal-confirm" class="hidden fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="mario-card w-full max-w-md p-6 text-center animate-pop">
+            <div class="text-5xl mb-2">🏰</div>
+            <h3 class="font-display text-2xl font-bold text-slate-900 mb-2">Akhiri Petualangan?</h3>
+            <p id="confirm-msg" class="text-slate-600 text-sm mb-5 font-semibold"></p>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="closeFinishConfirm()" class="py-3 rounded-xl bg-slate-200 hover:bg-slate-300 font-bold text-slate-800 text-sm cursor-pointer">
+                    Lanjut Main
+                </button>
+                <button onclick="finishGame()" class="py-3 rounded-xl btn-arcade btn-mario-green font-bold text-sm cursor-pointer">
+                    Ya, Lihat Nilai!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // 1. RETRO 8-BIT WEB AUDIO API SYNTHESIZER (ALA SUPER MARIO)
+        // =========================================================================
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                if (AC) audioCtx = new AC();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('btn-sound').textContent = soundEnabled ? '🔊' : '🔇';
+            if (soundEnabled) playSFX('coin');
+        }
+
+        function playSFX(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+
+                if (type === 'jump') {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.type = 'square';
+                    o.frequency.setValueAtTime(180, now);
+                    o.frequency.exponentialRampToValueAtTime(520, now + 0.14);
+                    g.gain.setValueAtTime(0.08, now);
+                    g.gain.exponentialRampToValueAtTime(0.005, now + 0.15);
+                    o.connect(g); g.connect(audioCtx.destination);
+                    o.start(now); o.stop(now + 0.15);
+                } else if (type === 'coin') {
+                    // Classic B5 -> E6 coin sound
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.type = 'square';
+                    o.frequency.setValueAtTime(987.77, now);
+                    o.frequency.setValueAtTime(1318.51, now + 0.07);
+                    g.gain.setValueAtTime(0.09, now);
+                    g.gain.exponentialRampToValueAtTime(0.005, now + 0.28);
+                    o.connect(g); g.connect(audioCtx.destination);
+                    o.start(now); o.stop(now + 0.28);
+                } else if (type === 'stomp') {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.type = 'triangle';
+                    o.frequency.setValueAtTime(360, now);
+                    o.frequency.exponentialRampToValueAtTime(90, now + 0.12);
+                    g.gain.setValueAtTime(0.16, now);
+                    g.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                    o.connect(g); g.connect(audioCtx.destination);
+                    o.start(now); o.stop(now + 0.12);
+                } else if (type === 'bump') {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.type = 'sawtooth';
+                    o.frequency.setValueAtTime(150, now);
+                    o.frequency.linearRampToValueAtTime(85, now + 0.18);
+                    g.gain.setValueAtTime(0.1, now);
+                    g.gain.exponentialRampToValueAtTime(0.005, now + 0.18);
+                    o.connect(g); g.connect(audioCtx.destination);
+                    o.start(now); o.stop(now + 0.18);
+                } else if (type === 'victory') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50];
+                    const times = [0, 0.1, 0.2, 0.3, 0.44, 0.56];
+                    notes.forEach((f, i) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.type = 'square';
+                        o.frequency.setValueAtTime(f, now + times[i]);
+                        g.gain.setValueAtTime(0.08, now + times[i]);
+                        g.gain.exponentialRampToValueAtTime(0.005, now + times[i] + 0.18);
+                        o.connect(g); g.connect(audioCtx.destination);
+                        o.start(now + times[i]); o.stop(now + times[i] + 0.19);
+                    });
+                }
+            } catch (e) {}
+        }
+
+        // =========================================================================
+        // 2. BANK 40 SOAL SESUAI KISI-KISI PENDIDIKAN PANCASILA KELAS V
+        // =========================================================================
+        const QUESTIONS = [
+            // BAGIAN A: PILIHAN GANDA & PG KOMPLEKS (1 - 20)
+            {
+                id: 1, type: 'pg', element: 'Pancasila • Sejarah Perumusan',
+                question: 'Istilah "Pancasila" berasal dari bahasa Sanskerta yang terdiri dari kata "panca" dan "sila". Arti yang tepat dari istilah Pancasila adalah ....',
+                options: [
+                    'Lima sendi atau lima dasar tingkah laku yang baik',
+                    'Lima aturan hukum yang wajib dipatuhi pemerintah',
+                    'Lima pahlawan bangsa yang merumuskan dasar negara',
+                    'Lima pulau besar yang ada di wilayah Nusantara'
+                ],
+                correct: 0,
+                explanation: 'Dalam bahasa Sanskerta, "Panca" berarti lima dan "Sila" berarti batu sendi, alas, atau dasar. Jadi Pancasila berarti lima dasar.'
+            },
+            {
+                id: 2, type: 'pg_kompleks', element: 'Pancasila • Sejarah Perumusan',
+                illustration: '📜 <strong>Sidang Pertama BPUPKI:</strong> Pada tanggal 29 Mei – 1 Juni 1945, BPUPKI mengadakan sidang pertama untuk membahas rumusan dasar negara Indonesia merdeka.',
+                question: 'Berdasarkan sejarah sidang pertama BPUPKI tersebut, pilihlah DUA (2) pernyataan yang tepat!',
+                options: [
+                    'Tokoh pengusul dasar negara antara lain Moh. Yamin, Soepomo, dan Ir. Soekarno.',
+                    'Sidang pertama BPUPKI diketuai langsung oleh Ir. Soekarno.',
+                    'Pada 1 Juni 1945, Ir. Soekarno menyampaikan pidato tentang lima dasar bernama Pancasila.',
+                    'Sidang pertama BPUPKI langsung mengesahkan Undang-Undang Dasar 1945.'
+                ],
+                correct: [0, 2],
+                explanation: 'Sidang pertama BPUPKI diketuai dr. Radjiman Wedyodiningrat. Pengusul dasar negara adalah Moh. Yamin, Soepomo, dan Ir. Soekarno (1 Juni 1945).'
+            },
+            {
+                id: 3, type: 'pg', element: 'Pancasila • Makna Pancasila',
+                question: 'Saat bermain di halaman sekolah, Edo melihat Lani terjatuh dari sepeda. Meski berbeda suku dan agama, Edo segera menolong Lani ke UKS. Sikap Edo mencerminkan sila ke-....',
+                options: [
+                    'Kesatu (Ketuhanan Yang Maha Esa)',
+                    'Kedua (Kemanusiaan yang Adil dan Beradab)',
+                    'Keempat (Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan)',
+                    'Kelima (Keadilan Sosial bagi Seluruh Rakyat Indonesia)'
+                ],
+                correct: 1,
+                explanation: 'Menolong sesama manusia dengan tulus tanpa membeda-bedakan suku atau agama merupakan pengamalan Sila ke-2.'
+            },
+            {
+                id: 4, type: 'pg', element: 'Pancasila • Kedudukan Pancasila',
+                illustration: '🏫 <strong>Tata Tertib Sekolah:</strong> "Setiap murid wajib menghormati guru, menyayangi teman, menjaga ketertiban kelas, serta mengikuti upacara dengan khidmat."',
+                question: 'Tata tertib sekolah hingga undang-undang negara disusun berdasarkan nilai-nilai Pancasila. Hal ini menunjukkan kedudukan Pancasila sebagai ....',
+                options: [
+                    'Hiasan dinding di setiap ruang kelas',
+                    'Dasar negara dan sumber dari segala sumber hukum',
+                    'Semboyan negara pada pita burung Garuda',
+                    'Lagu kebangsaan yang dinyanyikan saat upacara'
+                ],
+                correct: 1,
+                explanation: 'Sebagai Dasar Negara, Pancasila menjadi fondasi utama dan sumber dari segala sumber hukum di Indonesia.'
+            },
+            {
+                id: 5, type: 'pg', element: 'Pancasila • Meneladani Pahlawan',
+                illustration: '🤝 <strong>Kisah Teladan:</strong> Pada 18 Agustus 1945, para pendiri bangsa bermusyawarah dengan lapang dada mengubah tujuh kata pada sila pertama Piagam Jakarta menjadi "Ketuhanan Yang Maha Esa".',
+                question: 'Sikap keteladanan utama tokoh perumus dasar negara pada peristiwa tersebut adalah ....',
+                options: [
+                    'Memaksakan kehendak agar pendapat kelompoknya menang',
+                    'Mengutamakan persatuan dan kesatuan bangsa di atas kepentingan golongan',
+                    'Menolak berdiskusi dengan tokoh dari daerah lain',
+                    'Mengalah karena takut dimarahi ketua sidang'
+                ],
+                correct: 1,
+                explanation: 'Para pendiri bangsa rela mengesampingkan kepentingan golongan demi menjaga persatuan dan keutuhan bangsa Indonesia.'
+            },
+            {
+                id: 6, type: 'pg', element: 'Pancasila • Nasionalisme',
+                question: 'Santi melihat tas sekolah buatan pengrajin lokal Indonesia yang kuat dan rapi di samping tas impor yang mahal. Tindakan Santi yang mencerminkan cinta tanah air (nasionalisme) adalah ....',
+                options: [
+                    'Membeli tas impor agar terlihat lebih modern',
+                    'Mengejek tas buatan dalam negeri karena kurang terkenal',
+                    'Memilih dan bangga memakai tas buatan pengrajin dalam negeri',
+                    'Meminta ibu membelikan kedua tas tersebut sekaligus'
+                ],
+                correct: 2,
+                explanation: 'Bangga menggunakan produk buatan dalam negeri merupakan wujud nyata sikap cinta tanah air (nasionalisme).'
+            },
+            {
+                id: 7, type: 'pg', element: 'Pancasila • Musyawarah Keluarga',
+                question: 'Keluarga Pak Budi bermusyawarah menentukan tujuan liburan. Usulan kakak ke museum tidak terpilih karena mayoritas memilih kebun binatang. Sikap terpuji kakak adalah ....',
+                options: [
+                    'Cemberut dan menolak ikut pergi liburan',
+                    'Menerima keputusan musyawarah dengan ikhlas dan penuh kegembiraan',
+                    'Terus membujuk ayah membatalkan keputusan musyawarah',
+                    'Marah kepada adik karena usulannya yang dipilih'
+                ],
+                correct: 1,
+                explanation: 'Setiap anggota keluarga wajib menghargai dan melaksanakan keputusan musyawarah dengan lapang dada meski usulnya tidak terpilih.'
+            },
+            {
+                id: 8, type: 'pg_kompleks', element: 'Pancasila • Keterkaitan Sila',
+                illustration: '🕌⛪🛕 <strong>Kerukunan Warga:</strong> Warga Desa Sukamaju berbeda agama. Saat warga Islam merayakan Idulfitri, tetangga Kristen dan Hindu ikut menjaga keamanan lingkungan agar ibadah tenang.',
+                question: 'Pilihlah DUA (2) pernyataan yang BENAR mengenai toleransi beragama dan keterkaitan antarsila pada cerita tersebut!',
+                options: [
+                    'Toleransi antarumat beragama (Sila ke-1) mempererat persatuan warga (Sila ke-3).',
+                    'Menjaga ketenangan saat tetangga beribadah adalah wujud kerukunan nasional.',
+                    'Warga berbeda agama sebaiknya tinggal di desa terpisah agar tidak bertengkar.',
+                    'Persatuan bangsa hanya bisa terwujud jika semua warga beragama sama.'
+                ],
+                correct: [0, 1],
+                explanation: 'Saling menghormati kebebasan beribadah (Sila ke-1) menciptakan kerukunan yang memperkokoh Persatuan Indonesia (Sila ke-3).'
+            },
+            {
+                id: 9, type: 'pg', element: 'Pancasila • Persatuan Indonesia',
+                question: 'Warga RT 04 bergotong royong membersihkan saluran air menjelang musim hujan. Pentingnya perwujudan Sila ke-3 dalam kegiatan gotong royong tersebut adalah ....',
+                options: [
+                    'Pekerjaan berat menjadi ringan dan mempererat rasa kekeluargaan warga',
+                    'Warga bisa mendapat hadiah uang dari ketua RT setelah bekerja',
+                    'Supaya warga tidak perlu membayar petugas kebersihan lagi',
+                    'Agar terlihat lebih rajin dibandingkan warga RT sebelah'
+                ],
+                correct: 0,
+                explanation: 'Gotong royong adalah wujud Sila ke-3 yang meringankan pekerjaan berat sekaligus mempererat persatuan antarwarga.'
+            },
+            {
+                id: 10, type: 'pg', element: 'Pancasila • Keterkaitan Antarsila',
+                illustration: '📦 <strong>Narasi:</strong> Pemerintah desa bermusyawarah dengan tokoh masyarakat mendata warga kurang mampu agar pembagian sembako tepat sasaran dan adil.',
+                question: 'Narasi tersebut menunjukkan keterkaitan erat antara dua sila Pancasila, yaitu ....',
+                options: [
+                    'Sila ke-1 dan Sila ke-2',
+                    'Sila ke-2 dan Sila ke-3',
+                    'Sila ke-4 (Musyawarah) dan Sila ke-5 (Keadilan Sosial)',
+                    'Sila ke-1 dan Sila ke-5'
+                ],
+                correct: 2,
+                explanation: 'Musyawarah (Sila ke-4) dilakukan untuk mewujudkan pembagian bantuan secara adil dan merata (Sila ke-5).'
+            },
+            {
+                id: 11, type: 'pg', element: 'Norma • Macam-macam Norma',
+                question: 'Sebelum berangkat sekolah, Rina mencium tangan orang tuanya dan mengucapkan "Permisi, Bu" sambil menunduk saat melewati orang lebih tua. Perilaku Rina menerapkan ....',
+                options: ['Norma Hukum', 'Norma Kesopanan', 'Norma Agama', 'Norma Kesusilaan'],
+                correct: 1,
+                explanation: 'Norma kesopanan berkaitan dengan tata krama, sopan santun, dan rasa hormat dalam pergaulan masyarakat.'
+            },
+            {
+                id: 12, type: 'pg', element: 'Norma • Perbedaan Norma',
+                illustration: '⚖️ <strong>Dua Kejadian:</strong><br>1) Beni gelisah dan menyesal setelah berbohong kepada ibunya.<br>2) Pengendara motor ditilang polisi karena menerobos lampu merah.',
+                question: 'Perbedaan mendasar antara Norma Kesusilaan (kejadian 1) dan Norma Hukum (kejadian 2) adalah ....',
+                options: [
+                    'Norma kesusilaan bersumber dari hati nurani (sanksi menyesal), sedangkan norma hukum dibuat negara (sanksi tegas/denda)',
+                    'Norma kesusilaan berlaku di jalan raya, sedangkan norma hukum hanya berlaku di rumah',
+                    'Norma kesusilaan sanksinya penjara, sedangkan norma hukum sanksinya dikucilkan',
+                    'Norma kesusilaan tertulis dalam undang-undang, sedangkan norma hukum tidak tertulis'
+                ],
+                correct: 0,
+                explanation: 'Norma kesusilaan bersumber dari hati nurani dengan sanksi rasa bersalah, sedangkan norma hukum dibuat negara dengan sanksi tegas (denda/penjara).'
+            },
+            {
+                id: 13, type: 'pg', element: 'Norma • Kewajiban di Sekolah',
+                question: 'Di perpustakaan sekolah tersedia banyak buku cerita bergambar. Sikap tanggung jawab murid terhadap fasilitas perpustakaan adalah ....',
+                options: [
+                    'Mencoret-coret halaman buku yang bergambar bagus',
+                    'Membaca dengan tenang dan mengembalikan buku ke rak semula dengan rapi',
+                    'Membawa pulang buku perpustakaan tanpa melapor petugas',
+                    'Makan dan minum di dekat rak buku agar tidak lapar'
+                ],
+                correct: 1,
+                explanation: 'Merawat buku dan mengembalikannya ke tempat semula merupakan kewajiban menjaga fasilitas umum sekolah.'
+            },
+            {
+                id: 14, type: 'pg', element: 'Norma • Hak dan Kewajiban',
+                question: 'Banyak pengendara motor memarkirkan kendaraannya di atas trotoar sehingga pejalan kaki terpaksa berjalan di badan jalan. Kerugian hak yang dialami pejalan kaki adalah ....',
+                options: [
+                    'Hilangnya hak pejalan kaki untuk berjalan dengan aman dan nyaman di trotoar',
+                    'Pejalan kaki tidak perlu lagi membayar pajak kendaraan',
+                    'Pengendara motor mendapat tempat parkir yang teduh dan gratis',
+                    'Jalan raya menjadi lebih luas untuk dilalui mobil'
+                ],
+                correct: 0,
+                explanation: 'Trotoar adalah hak pejalan kaki. Parkir motor di trotoar merampas hak keamanan dan kenyamanan pejalan kaki.'
+            },
+            {
+                id: 15, type: 'pg', element: 'Norma • Keseimbangan Hak & Kewajiban',
+                question: 'Setiap anak berhak bermain dan mendapat kasih sayang, namun berkewajiban belajar dan membantu orang tua. Penerapan keseimbangan hak dan kewajiban yang tepat adalah ....',
+                options: [
+                    'Menuntut mainan baru setiap hari sebelum mengerjakan PR',
+                    'Bermain game sepanjang sore dan baru belajar jika dimarahi',
+                    'Menyelesaikan tugas sekolah dan membantu orang tua terlebih dahulu sebelum bermain',
+                    'Hanya melaksanakan kewajiban jika dijanjikan hadiah'
+                ],
+                correct: 2,
+                explanation: 'Keseimbangan dilakukan dengan mendahulukan pelaksanaan kewajiban secara bertanggung jawab baru menerima hak.'
+            },
+            {
+                id: 16, type: 'pg', element: 'Norma • Kebersihan Sekolah',
+                illustration: '🧹🪣🪟 <strong>Suasana Pagi di Kelas V:</strong> Papan tulis masih penuh tulisan kemarin, lantai berdebu, dan ada kertas berserakan di bawah meja sebelum bel masuk.',
+                question: 'Tindakan penerapan kewajiban menjaga kebersihan sekolah yang tepat adalah ....',
+                options: [
+                    'Menunggu petugas kebersihan sekolah datang membersihkan kelas',
+                    'Menyapu sampah ke kolong meja teman agar kelas tampak bersih',
+                    'Bekerja sama dengan regu piket menyapu lantai, menghapus papan tulis, dan membuang sampah pada tempatnya',
+                    'Keluar kelas dan bermain di lapangan sampai pelajaran dimulai'
+                ],
+                correct: 2,
+                explanation: 'Bekerja sama melaksanakan piket kelas adalah kewajiban murid menjaga kebersihan lingkungan sekolah.'
+            },
+            {
+                id: 17, type: 'pg', element: 'Norma • Penerapan Norma',
+                question: 'Di lingkungan Pak Hasan berlaku aturan: "Tamu menginap lebih dari 1x24 jam wajib lapor Ketua RT". Saat sepupunya menginap 3 hari, Pak Hasan segera melapor ke Ketua RT. Evaluasi tindakan Pak Hasan adalah ....',
+                options: [
+                    'Kurang tepat karena merepotkan Ketua RT',
+                    'Sangat tepat karena mematuhi norma dan aturan keamanan lingkungan masyarakat',
+                    'Tidak perlu dilakukan karena tamu masih keluarga sendiri',
+                    'Berlebihan karena aturan hanya untuk orang asing'
+                ],
+                correct: 1,
+                explanation: 'Tindakan Pak Hasan terpuji karena menaati peraturan lingkungan demi menjaga ketertiban dan keamanan warga.'
+            },
+            {
+                id: 18, type: 'pg_kompleks', element: 'Norma • Musyawarah Desa',
+                illustration: '🏡 <strong>Musyawarah Desa:</strong> Warga Desa Makmur berkumpul di balai desa membahas pembangunan jembatan. Semua warga diberi kesempatan berbicara dengan sopan.',
+                question: 'Pilihlah DUA (2) pernyataan yang BENAR mengenai nilai dasar musyawarah pada cerita tersebut!',
+                options: [
+                    'Setiap peserta musyawarah memiliki hak dan kedudukan yang sama untuk berpendapat.',
+                    'Menghargai pendapat orang lain adalah nilai dasar agar musyawarah berjalan damai.',
+                    'Hanya warga paling kaya yang pendapatnya boleh didengarkan.',
+                    'Peserta boleh memotong pembicaraan orang lain agar diskusi cepat selesai.'
+                ],
+                correct: [0, 1],
+                explanation: 'Nilai dasar musyawarah menjunjung kesetaraan hak berpendapat serta sikap saling menghormati antarpeserta.'
+            },
+            {
+                id: 19, type: 'pg', element: 'Norma • Musyawarah di Sekolah',
+                question: 'Dani dan Bagas berselisih karena sama-sama ingin menghapus papan tulis dan tidak mau menyapu lantai saat piket. Cara terbaik ketua kelas menyelesaikannya adalah ....',
+                options: [
+                    'Menghukum keduanya menyapu seluruh halaman sekolah',
+                    'Mengajak regu piket bermusyawarah membagi jadwal tugas secara adil dan bergiliran',
+                    'Membiarkan mereka bertengkar sampai bel pulang',
+                    'Memilih Dani saja karena sahabat dekat ketua kelas'
+                ],
+                correct: 1,
+                explanation: 'Perselisihan di sekolah diselesaikan lewat musyawarah dengan pembagian tugas adil dan bergiliran.'
+            },
+            {
+                id: 20, type: 'pg_kompleks', element: 'Norma • Sikap dalam Musyawarah',
+                illustration: '🗳️ <strong>Pemilihan Ketua Kelas:</strong> Melalui pemungutan suara (voting), Siti terpilih menjadi ketua kelas mengungguli Andi.',
+                question: 'Pilihlah DUA (2) sikap terpuji yang harus ditunjukkan Andi dan seluruh siswa Kelas V terhadap hasil tersebut!',
+                options: [
+                    'Andi menerima hasil pemilihan dengan lapang dada dan memberi selamat kepada Siti.',
+                    'Seluruh siswa mendukung dan melaksanakan keputusan bersama dengan tanggung jawab.',
+                    'Pendukung Andi menolak bekerja sama jika Siti memberi tugas kelas.',
+                    'Meminta pemilihan diulang terus-menerus sampai Andi menang.'
+                ],
+                correct: [0, 1],
+                explanation: 'Sikap terpuji dalam musyawarah adalah menerima keputusan dengan lapang dada dan melaksanakannya bersama.'
+            },
+
+            // BAGIAN B: ISIAN SINGKAT (21 - 40)
+            {
+                id: 21, type: 'isian', element: 'Pancasila • Sejarah Perumusan',
+                question: 'Panitia kecil beranggotakan sembilan tokoh bangsa yang merumuskan Piagam Jakarta pada 22 Juni 1945 bernama ....',
+                acceptedAnswers: ['panitia sembilan', 'panitia 9'],
+                displayAnswer: 'Panitia Sembilan',
+                explanation: 'Panitia Sembilan diketuai Ir. Soekarno dan merumuskan Piagam Jakarta pada 22 Juni 1945.'
+            },
+            {
+                id: 22, type: 'isian', element: 'Pancasila • Sejarah Perumusan',
+                question: 'Tokoh nasional yang pertama kali memperkenalkan istilah "Pancasila" dalam pidatonya pada tanggal 1 Juni 1945 adalah ....',
+                acceptedAnswers: ['ir. soekarno', 'ir soekarno', 'soekarno', 'sukarno', 'ir. sukarno', 'bung karno'],
+                displayAnswer: 'Ir. Soekarno',
+                explanation: 'Ir. Soekarno memperkenalkan istilah Pancasila pada 1 Juni 1945 (Hari Lahir Pancasila).'
+            },
+            {
+                id: 23, type: 'isian', element: 'Pancasila • Sejarah Perumusan',
+                question: 'Pada sidang PPKI tanggal 18 Agustus 1945, dokumen konstitusi negara yang disahkan sekaligus memuat rumusan Pancasila dalam pembukaannya adalah ....',
+                acceptedAnswers: ['uud 1945', 'undang-undang dasar 1945', 'undang undang dasar 1945', 'uud nri 1945'],
+                displayAnswer: 'UUD 1945',
+                explanation: 'Sidang PPKI 18 Agustus 1945 mengesahkan Undang-Undang Dasar 1945 (UUD 1945).'
+            },
+            {
+                id: 24, type: 'isian', element: 'Pancasila • Simbol Pancasila',
+                question: 'Siswa kelas V menghargai hasil keputusan rapat bersama. Perilaku tersebut sesuai dengan sila ke-4 yang memiliki lambang ....',
+                acceptedAnswers: ['kepala banteng', 'banteng'],
+                displayAnswer: 'Kepala Banteng',
+                explanation: 'Musyawarah dan menghargai hasil rapat adalah pengamalan Sila ke-4 berlambang Kepala Banteng.'
+            },
+            {
+                id: 25, type: 'isian', element: 'Pancasila • Kedudukan Pancasila',
+                question: 'Segala peraturan perundang-undangan di Indonesia tidak boleh bertentangan dengan Pancasila karena Pancasila berfungsi sebagai sumber hukum atau ....',
+                acceptedAnswers: ['dasar negara', 'dasar negara indonesia'],
+                displayAnswer: 'Dasar Negara',
+                explanation: 'Sebagai Dasar Negara, Pancasila menjadi landasan seluruh peraturan perundang-undangan.'
+            },
+            {
+                id: 26, type: 'isian', element: 'Pancasila • Kedudukan Pancasila',
+                question: 'Fungsi Pancasila sebagai petunjuk arah dan pedoman tingkah laku sehari-hari seluruh rakyat Indonesia disebut .... bangsa.',
+                acceptedAnswers: ['pandangan hidup', 'pedoman hidup'],
+                displayAnswer: 'Pandangan Hidup',
+                explanation: 'Sebagai Pandangan Hidup Bangsa, Pancasila menjadi pedoman perilaku sehari-hari.'
+            },
+            {
+                id: 27, type: 'isian', element: 'Pancasila • Meneladani Pahlawan',
+                question: 'Saat bendera Merah Putih dikibarkan dalam upacara, sikap nasionalisme yang kita tunjukkan adalah berdiri tegak dan memberi .... dengan khidmat.',
+                acceptedAnswers: ['hormat', 'penghormatan'],
+                displayAnswer: 'Hormat',
+                explanation: 'Memberi hormat dengan khidmat saat pengibaran bendera adalah wujud sikap nasionalisme.'
+            },
+            {
+                id: 28, type: 'isian', element: 'Pancasila • Pengamalan Sila',
+                question: 'Murid-murid SD mengumpulkan sumbangan untuk korban banjir tanpa membedakan suku dan agama. Tindakan tersebut mengamalkan Pancasila sila ke-....',
+                acceptedAnswers: ['2', 'dua', 'kedua', 'ke-2', 'ke 2', 'kemanusiaan yang adil dan beradab'],
+                displayAnswer: 'Sila ke-2',
+                explanation: 'Kepedulian terhadap sesama manusia yang tertimpa musibah adalah pengamalan Sila ke-2.'
+            },
+            {
+                id: 29, type: 'isian', element: 'Pancasila • Keterkaitan Antarsila',
+                question: 'Sikap saling menghormati sesama manusia (Sila ke-2) akan mempererat kerukunan dan keutuhan bangsa yang merupakan wujud Sila ke-....',
+                acceptedAnswers: ['3', 'tiga', 'ketiga', 'ke-3', 'ke 3', 'persatuan indonesia'],
+                displayAnswer: 'Sila ke-3',
+                explanation: 'Sila ke-2 dan Sila ke-3 saling berkaitan: menghormati sesama memperkuat Persatuan Indonesia (Sila ke-3).'
+            },
+            {
+                id: 30, type: 'isian', element: 'Pancasila • Sikap Musyawarah',
+                question: 'Meski usulannya tidak terpilih dalam musyawarah kelas, Dito tetap menerima keputusan bersama dengan ikhlas dan ....',
+                acceptedAnswers: ['lapang dada', 'besar hati', 'legawa', 'legowo', 'ikhlas'],
+                displayAnswer: 'Lapang dada',
+                explanation: 'Menerima hasil keputusan musyawarah dengan lapang dada adalah sikap terpuji pelajar Pancasila.'
+            },
+            {
+                id: 31, type: 'isian', element: 'Norma • Macam-macam Norma',
+                question: 'Aturan hidup yang bersumber dari wahyu Tuhan Yang Maha Esa dan tertulis dalam kitab suci disebut norma ....',
+                acceptedAnswers: ['agama', 'norma agama'],
+                displayAnswer: 'Norma Agama',
+                explanation: 'Norma Agama adalah aturan yang bersumber dari Tuhan Yang Maha Esa melalui kitab suci.'
+            },
+            {
+                id: 32, type: 'isian', element: 'Norma • Penerapan Norma',
+                question: 'Memakai seragam lengkap dan menaati aturan tata tertib tertulis yang memiliki sanksi tegas di sekolah termasuk penerapan norma ....',
+                acceptedAnswers: ['hukum', 'norma hukum', 'tata tertib'],
+                displayAnswer: 'Norma Hukum',
+                explanation: 'Tata tertib tertulis yang dibuat lembaga resmi dan bersanksi tegas merupakan contoh Norma Hukum.'
+            },
+            {
+                id: 33, type: 'isian', element: 'Norma • Penerapan Norma',
+                question: 'Arya menolak menyontek saat ulangan karena suara hatinya mengatakan berbuat curang itu salah. Arya telah mematuhi norma ....',
+                acceptedAnswers: ['kesusilaan', 'norma kesusilaan', 'susila'],
+                displayAnswer: 'Norma Kesusilaan',
+                explanation: 'Norma Kesusilaan bersumber dari hati nurani manusia tentang perbuatan baik dan buruk.'
+            },
+            {
+                id: 34, type: 'isian', element: 'Norma • Karakteristik Norma',
+                question: 'Norma hukum memiliki sanksi yang tegas dan nyata bagi pelanggarnya sehingga bersifat .... setiap warga untuk mematuhinya.',
+                acceptedAnswers: ['memaksa', 'mengikat'],
+                displayAnswer: 'Memaksa / Mengikat',
+                explanation: 'Norma hukum bersifat memaksa dan mengikat seluruh warga negara tanpa terkecuali.'
+            },
+            {
+                id: 35, type: 'isian', element: 'Norma • Hak dan Kewajiban',
+                question: 'Merapikan tempat tidur setelah bangun pagi dan membantu orang tua di rumah merupakan contoh pelaksanaan .... anak.',
+                acceptedAnswers: ['kewajiban', 'tugas', 'tanggung jawab'],
+                displayAnswer: 'Kewajiban',
+                explanation: 'Membantu orang tua dan menjaga kerapian kamar merupakan kewajiban anak di rumah.'
+            },
+            {
+                id: 36, type: 'isian', element: 'Norma • Hak dan Kewajiban',
+                question: 'Mendapatkan pelajaran, bimbingan guru, dan fasilitas belajar yang layak di sekolah merupakan pemenuhan .... siswa.',
+                acceptedAnswers: ['hak', 'hak siswa', 'hak anak'],
+                displayAnswer: 'Hak',
+                explanation: 'Memperoleh ilmu dan fasilitas belajar yang layak adalah hak setiap murid di sekolah.'
+            },
+            {
+                id: 37, type: 'isian', element: 'Norma • Keseimbangan Hak & Kewajiban',
+                question: 'Agar tercipta kehidupan yang rukun dan harmonis, hak dan kewajiban harus dilaksanakan secara ....',
+                acceptedAnswers: ['seimbang', 'adil', 'selaras'],
+                displayAnswer: 'Seimbang',
+                explanation: 'Pelaksanaan hak dan kewajiban secara seimbang mencegah terjadinya perselisihan.'
+            },
+            {
+                id: 38, type: 'isian', element: 'Norma • Mekanisme Musyawarah',
+                question: 'Apabila musyawarah mufakat belum tercapai, penentuan keputusan akhir melalui pemungutan suara terbanyak disebut ....',
+                acceptedAnswers: ['voting', 'pemungutan suara'],
+                displayAnswer: 'Voting',
+                explanation: 'Voting adalah pengambilan keputusan berdasarkan suara terbanyak saat mufakat tidak tercapai.'
+            },
+            {
+                id: 39, type: 'isian', element: 'Norma • Sikap Musyawarah',
+                question: 'Ketika teman sedang menyampaikan pendapat dalam musyawarah, sikap terpuji kita adalah tidak memotong dan .... dengan baik.',
+                acceptedAnswers: ['mendengarkan', 'menyimak', 'menghargai', 'menghormati'],
+                displayAnswer: 'Mendengarkan / Menghargai',
+                explanation: 'Mendengarkan dan menghargai pendapat teman membuat musyawarah berjalan tertib.'
+            },
+            {
+                id: 40, type: 'isian', element: 'Norma • Nilai Musyawarah',
+                question: 'Melaksanakan hasil keputusan musyawarah bersama dengan penuh tanggung jawab merupakan pengamalan Pancasila sila ke-....',
+                acceptedAnswers: ['4', 'empat', 'keempat', 'ke-4', 'ke 4', 'kerakyatan'],
+                displayAnswer: 'Sila ke-4',
+                explanation: 'Musyawarah dan melaksanakan keputusan bersama adalah pengamalan nilai Sila ke-4.'
+            }
+        ];
+
+        // =========================================================================
+        // 3. STATE GAME & ENGINE SUPER MARIO PLATFORMER (HTML5 CANVAS)
+        // =========================================================================
+        let studentData = { nama: '', absen: '', kelas: 'Kelas V' };
+        let userAnswers = []; // { answered, isCorrect, userAnswer }
+        let activeQuestionIdx = null;
+        let tempPGKSelection = [];
+        let isModalOpen = false;
+        let gameActive = false;
+        let latestReportText = '';
+
+        // Timer & Score
+        let timerInterval = null;
+        let secondsElapsed = 0;
+        let totalCoins = 0;
+
+        // Canvas & World Constants (Virtual Resolution 960 x 540, scaled responsively)
+        const V_WIDTH = 960;
+        const V_HEIGHT = 540;
+        const GROUND_Y = 456;
+        const GRAVITY = 0.65;
+        const BLOCK_SPACING = 240; // Jarak antar blok soal ?
+        const WORLD_WIDTH = 40 * BLOCK_SPACING + 900;
+        const FLAG_X = 40 * BLOCK_SPACING + 420;
+
+        let canvas, ctx;
+        let cameraX = 0;
+        let frameCount = 0;
+
+        // Input state
+        const keys = { left: false, right: false, jump: false };
+
+        // Player Object (Pahlawan Pancasila bertopi merah ala Mario)
+        const player = {
+            x: 100,
+            y: GROUND_Y - 48,
+            w: 36,
+            h: 48,
+            vx: 0,
+            vy: 0,
+            speed: 5.2,
+            jumpPower: -13.8,
+            onGround: false,
+            facing: 1, // 1 right, -1 left
+            walkFrame: 0,
+            invincibleTimer: 0
+        };
+
+        // World Entities
+        let qBlocks = [];     // 40 Blok Soal '?'
+        let platforms = [];   // Pijakan bata tambahan
+        let pipes = [];       // Pipa hijau dekoratif & pijakan
+        let coins = [];       // Koin melayang bonus
+        let enemies = [];     // Musuh jamur lucu (Goomba)
+        let particles = [];   // Efek percikan & teks melayang
+        let clouds = [];      // Awan bergerak
+
+        function buildWorld() {
+            qBlocks = [];
+            platforms = [];
+            pipes = [];
+            coins = [];
+            enemies = [];
+            particles = [];
+            clouds = [];
+
+            // Awan sepanjang dunia
+            for (let i = 0; i < 45; i++) {
+                clouds.push({
+                    x: i * 260 + Math.random() * 100,
+                    y: 45 + (i % 3) * 42,
+                    scale: 0.75 + (i % 3) * 0.25,
+                    speed: 0.15 + (i % 2) * 0.1
+                });
+            }
+
+            // 40 Blok Soal '?' dan rintangan ramah anak di antaranya
+            for (let i = 0; i < 40; i++) {
+                const bx = 300 + i * BLOCK_SPACING;
+                // Tinggi blok pas untuk disundul saat melompat!
+                const by = (i % 2 === 0) ? GROUND_Y - 128 : GROUND_Y - 140;
+
+                qBlocks.push({
+                    index: i,
+                    id: i + 1,
+                    x: bx,
+                    y: by,
+                    w: 48,
+                    h: 48,
+                    bumpOffset: 0
+                });
+
+                // Blok bata pengapit kiri/kanan pada beberapa pos agar makin ala Mario
+                if (i % 3 === 1) {
+                    platforms.push({ x: bx - 46, y: by, w: 44, h: 48 });
+                    platforms.push({ x: bx + 50, y: by, w: 44, h: 48 });
+                }
+
+                // Koin melayang di antara pos soal
+                coins.push({
+                    x: bx - 95,
+                    y: GROUND_Y - 82 - (i % 2) * 24,
+                    r: 12,
+                    collected: false
+                });
+
+                // Pipa hijau setiap 4 pos
+                if (i > 0 && i % 4 === 0) {
+                    pipes.push({
+                        x: bx - 125,
+                        y: GROUND_Y - 64,
+                        w: 56,
+                        h: 64
+                    });
+                }
+
+                // Musuh jamur lucu (Goomba) setiap 3 pos — bisa diinjak!
+                if (i % 3 === 2) {
+                    enemies.push({
+                        x: bx - 85,
+                        y: GROUND_Y - 34,
+                        w: 34,
+                        h: 34,
+                        minX: bx - 140,
+                        maxX: bx - 20,
+                        vx: 1.15,
+                        alive: true,
+                        squishTimer: 0
+                    });
+                }
+            }
+        }
+
+        function spawnParticles(x, y, color, textLabel = '') {
+            for (let i = 0; i < 10; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 7,
+                    vy: -Math.random() * 6 - 2,
+                    size: 5 + Math.random() * 5,
+                    color,
+                    life: 32
+                });
+            }
+            if (textLabel) {
+                particles.push({
+                    x, y: y - 10,
+                    vx: 0,
+                    vy: -1.6,
+                    text: textLabel,
+                    color: '#FEF08A',
+                    life: 48
+                });
+            }
+        }
+
+        function showCanvasToast(msg) {
+            const toast = document.getElementById('canvas-toast');
+            toast.textContent = msg;
+            toast.classList.remove('hidden');
+            clearTimeout(toast._t);
+            toast._t = setTimeout(() => toast.classList.add('hidden'), 1800);
+        }
+
+        // =========================================================================
+        // 4. UPDATE FISIKA & LOGIKA PLATFORMER
+        // =========================================================================
+        function updatePhysics() {
+            if (!gameActive || isModalOpen) return;
+            frameCount++;
+
+            // Gerak Awan
+            clouds.forEach(c => {
+                c.x -= c.speed;
+                if (c.x < -120) c.x = WORLD_WIDTH;
+            });
+
+            // Input Horizontal
+            if (keys.left) {
+                player.vx = -player.speed;
+                player.facing = -1;
+                player.walkFrame += 0.22;
+            } else if (keys.right) {
+                player.vx = player.speed;
+                player.facing = 1;
+                player.walkFrame += 0.22;
+            } else {
+                player.vx *= 0.72;
+                if (Math.abs(player.vx) < 0.2) player.vx = 0;
+            }
+
+            // Lompat
+            if (keys.jump && player.onGround) {
+                player.vy = player.jumpPower;
+                player.onGround = false;
+                playSFX('jump');
+            }
+
+            // Terapkan gravitasi
+            player.vy += GRAVITY;
+            if (player.vy > 15) player.vy = 15;
+
+            // Gerak Horizontal + Batas Dunia
+            player.x += player.vx;
+            if (player.x < 16) player.x = 16;
+            if (player.x > WORLD_WIDTH - 120) player.x = WORLD_WIDTH - 120;
+
+            // Tabrakan Horizontal dengan Pipa
+            pipes.forEach(p => {
+                if (rectOverlap(player, p)) {
+                    if (player.vx > 0) player.x = p.x - player.w;
+                    else if (player.vx < 0) player.x = p.x + p.w;
+                }
+            });
+
+            // Gerak Vertikal
+            player.y += player.vy;
+            player.onGround = false;
+
+            // Tanah Utama
+            if (player.y + player.h >= GROUND_Y) {
+                player.y = GROUND_Y - player.h;
+                player.vy = 0;
+                player.onGround = true;
+            }
+
+            // Tabrakan Vertikal dengan Pipa (Bisa berdiri di atas pipa!)
+            pipes.forEach(p => {
+                if (rectOverlap(player, p)) {
+                    if (player.vy > 0 && player.y + player.h - player.vy <= p.y + 12) {
+                        player.y = p.y - player.h;
+                        player.vy = 0;
+                        player.onGround = true;
+                    }
+                }
+            });
+
+            // Tabrakan dengan Platform Bata
+            platforms.forEach(pl => {
+                if (rectOverlap(player, pl)) {
+                    if (player.vy > 0 && player.y + player.h - player.vy <= pl.y + 12) {
+                        player.y = pl.y - player.h;
+                        player.vy = 0;
+                        player.onGround = true;
+                    } else if (player.vy < 0 && player.y - player.vy >= pl.y + pl.h - 12) {
+                        player.y = pl.y + pl.h;
+                        player.vy = 1;
+                        playSFX('bump');
+                    }
+                }
+            });
+
+            // Tabrakan dengan 40 Blok Soal '?' (Sundul dari bawah atau sentuh!)
+            qBlocks.forEach(b => {
+                if (b.bumpOffset < 0) b.bumpOffset += 1.5;
+                if (b.bumpOffset > 0) b.bumpOffset = 0;
+
+                if (rectOverlap(player, b)) {
+                    // Sundul dari bawah
+                    if (player.vy < 0 && player.y - player.vy >= b.y + b.h - 18) {
+                        player.y = b.y + b.h;
+                        player.vy = 2;
+                        b.bumpOffset = -12;
+                        playSFX('coin');
+                        openQuestionModal(b.index);
+                    }
+                    // Mendarat di atas blok
+                    else if (player.vy > 0 && player.y + player.h - player.vy <= b.y + 14) {
+                        player.y = b.y - player.h;
+                        player.vy = 0;
+                        player.onGround = true;
+                    }
+                }
+            });
+
+            // Kumpulkan Koin Melayang
+            coins.forEach(c => {
+                if (!c.collected) {
+                    const dx = (player.x + player.w / 2) - c.x;
+                    const dy = (player.y + player.h / 2) - c.y;
+                    if (Math.hypot(dx, dy) < c.r + 22) {
+                        c.collected = true;
+                        totalCoins += 5;
+                        updateHUD();
+                        playSFX('coin');
+                        spawnParticles(c.x, c.y, '#FDE047', '+5');
+                    }
+                }
+            });
+
+            // Gerak & Interaksi Musuh Jamur (Goomba)
+            if (player.invincibleTimer > 0) player.invincibleTimer--;
+
+            enemies.forEach(e => {
+                if (!e.alive) {
+                    if (e.squishTimer > 0) e.squishTimer--;
+                    return;
+                }
+                e.x += e.vx;
+                if (e.x <= e.minX || e.x + e.w >= e.maxX) e.vx *= -1;
+
+                if (rectOverlap(player, e)) {
+                    // Cek apakah pemain menginjak dari atas
+                    if (player.vy > 0 && player.y + player.h - player.vy <= e.y + 16) {
+                        e.alive = false;
+                        e.squishTimer = 25;
+                        player.vy = -9.5; // Memantul ceria!
+                        totalCoins += 10;
+                        updateHUD();
+                        playSFX('stomp');
+                        spawnParticles(e.x + e.w / 2, e.y, '#F59E0B', '+10 Koin!');
+                        showCanvasToast('🍄 Mantap! Pelanggar aturan berhasil diinjak (+10 Koin)');
+                    } else if (player.invincibleTimer === 0) {
+                        // Tidak Game Over! Cukup terpental ringan agar anak SD tetap senang
+                        player.vy = -7;
+                        player.vx = (player.x < e.x) ? -6 : 6;
+                        player.invincibleTimer = 60;
+                        playSFX('bump');
+                        showCanvasToast('😅 Ups! Lompat & injak jamurnya dari atas!');
+                    }
+                }
+            });
+
+            // Cek Garis Finish (Tiang Bendera Kastil)
+            if (player.x + player.w >= FLAG_X && player.x <= FLAG_X + 30) {
+                openFinishConfirm();
+                player.x = FLAG_X - player.w - 8;
+            }
+
+            // Update Partikel
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const pt = particles[i];
+                pt.x += pt.vx;
+                pt.y += pt.vy;
+                if (!pt.text) pt.vy += 0.25;
+                pt.life--;
+                if (pt.life <= 0) particles.splice(i, 1);
+            }
+
+            // Kamera Smooth Mengikuti Pemain
+            const targetCamX = player.x - V_WIDTH * 0.35;
+            cameraX += (targetCamX - cameraX) * 0.12;
+            if (cameraX < 0) cameraX = 0;
+            if (cameraX > WORLD_WIDTH - V_WIDTH) cameraX = WORLD_WIDTH - V_WIDTH;
+
+            // Update Label Zona Dunia berdasarkan posisi X
+            updateZoneLabel();
+        }
+
+        function rectOverlap(a, b) {
+            return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+        }
+
+        function updateZoneLabel() {
+            const posIndex = Math.max(1, Math.min(40, Math.floor((player.x - 180) / BLOCK_SPACING) + 1));
+            const banner = document.getElementById('zone-banner');
+            if (posIndex <= 10) banner.textContent = 'DUNIA 1-1: PADANG PANCASILA (SOAL 1–10)';
+            else if (posIndex <= 20) banner.textContent = 'DUNIA 1-2: BUKIT NORMA (SOAL 11–20)';
+            else if (posIndex <= 30) banner.textContent = 'DUNIA 1-3: LEMBAH GARUDA (ISIAN 21–30)';
+            else banner.textContent = 'DUNIA 1-4: KASTIL MUSYAWARAH (ISIAN 31–40)';
+        }
+
+        // =========================================================================
+        // 5. RENDER GRAFIK ALA SUPER MARIO DI CANVAS
+        // =========================================================================
+        function drawGame() {
+            if (!ctx) return;
+            ctx.save();
+
+            // 1. Langit Biru Khas Super Mario (sedikit berubah suasana di dunia akhir)
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, V_HEIGHT);
+            skyGrad.addColorStop(0, '#3B82F6');
+            skyGrad.addColorStop(1, '#7DD3FC');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+
+            // 2. Bukit Hijau Latar Belakang (Parallax lambat)
+            ctx.fillStyle = '#4ADE80';
+            for (let i = 0; i < 20; i++) {
+                const hx = i * 320 - (cameraX * 0.25) % 320;
+                ctx.beginPath();
+                ctx.arc(hx, GROUND_Y, 110, Math.PI, 0);
+                ctx.fill();
+            }
+            ctx.fillStyle = '#22C55E';
+            for (let i = 0; i < 24; i++) {
+                const hx = i * 240 + 100 - (cameraX * 0.4) % 240;
+                ctx.beginPath();
+                ctx.arc(hx, GROUND_Y, 70, Math.PI, 0);
+                ctx.fill();
+            }
+
+            // Mulai Transformasi Kamera Dunia
+            ctx.translate(-Math.floor(cameraX), 0);
+
+            // 3. Awan Putih
+            clouds.forEach(c => {
+                if (c.x < cameraX - 150 || c.x > cameraX + V_WIDTH + 150) return;
+                ctx.fillStyle = 'rgba(255,255,255,0.92)';
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, 20 * c.scale, 0, Math.PI * 2);
+                ctx.arc(c.x + 22 * c.scale, c.y - 8 * c.scale, 24 * c.scale, 0, Math.PI * 2);
+                ctx.arc(c.x + 46 * c.scale, c.y, 18 * c.scale, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 4. Tanah Berumput & Bata Merah Bawah
+            const startTile = Math.floor(cameraX / 48) * 48;
+            const endTile = cameraX + V_WIDTH + 96;
+            // Lapisan rumput hijau
+            ctx.fillStyle = '#16A34A';
+            ctx.fillRect(startTile, GROUND_Y, endTile - startTile, 16);
+            ctx.fillStyle = '#14532D';
+            ctx.fillRect(startTile, GROUND_Y + 14, endTile - startTile, 3);
+            // Lapisan bata tanah
+            ctx.fillStyle = '#C84C0C';
+            ctx.fillRect(startTile, GROUND_Y + 17, endTile - startTile, V_HEIGHT - GROUND_Y);
+
+            // Garis bata tanah
+            ctx.strokeStyle = '#7C2D12';
+            ctx.lineWidth = 2;
+            for (let tx = startTile; tx < endTile; tx += 48) {
+                ctx.strokeRect(tx, GROUND_Y + 18, 48, 32);
+                ctx.strokeRect(tx - 24, GROUND_Y + 50, 48, 34);
+            }
+
+            // 5. Pipa Hijau Mario
+            pipes.forEach(p => {
+                if (p.x + p.w < cameraX - 50 || p.x > cameraX + V_WIDTH + 50) return;
+                // Badan pipa
+                ctx.fillStyle = '#16A34A';
+                ctx.fillRect(p.x + 5, p.y + 18, p.w - 10, p.h - 18);
+                ctx.fillStyle = '#4ADE80';
+                ctx.fillRect(p.x + 11, p.y + 18, 8, p.h - 18);
+                ctx.strokeStyle = '#052E16';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(p.x + 5, p.y + 18, p.w - 10, p.h - 18);
+                // Bibir atas pipa
+                ctx.fillStyle = '#22C55E';
+                ctx.fillRect(p.x, p.y, p.w, 20);
+                ctx.fillStyle = '#86EFAC';
+                ctx.fillRect(p.x + 7, p.y + 3, 10, 14);
+                ctx.strokeRect(p.x, p.y, p.w, 20);
+            });
+
+            // 6. Platform Bata Pengapit
+            platforms.forEach(pl => {
+                if (pl.x + pl.w < cameraX - 50 || pl.x > cameraX + V_WIDTH + 50) return;
+                ctx.fillStyle = '#B45309';
+                ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
+                ctx.strokeStyle = '#451A03';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(pl.x, pl.y, pl.w, pl.h);
+                // Garis bata tengah
+                ctx.beginPath();
+                ctx.moveTo(pl.x, pl.y + pl.h / 2);
+                ctx.lineTo(pl.x + pl.w, pl.y + pl.h / 2);
+                ctx.stroke();
+            });
+
+            // 7. 40 Blok Tanda Tanya '?' (Pos Soal)
+            qBlocks.forEach(b => {
+                if (b.x + b.w < cameraX - 60 || b.x > cameraX + V_WIDTH + 60) return;
+                const st = userAnswers[b.index] || { answered: false, isCorrect: false };
+                const drawY = b.y + b.bumpOffset;
+                const pulse = !st.answered ? Math.sin(frameCount * 0.1 + b.index) * 2 : 0;
+
+                // Warna Blok berdasarkan status
+                if (!st.answered) {
+                    ctx.fillStyle = '#FACC15'; // Emas cerah
+                } else if (st.isCorrect) {
+                    ctx.fillStyle = '#22C55E'; // Hijau benar
+                } else {
+                    ctx.fillStyle = '#A8A29E'; // Abu-abu/coklat sudah dibuka
+                }
+
+                ctx.fillRect(b.x, drawY + pulse, b.w, b.h);
+                ctx.strokeStyle = '#1E293B';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(b.x, drawY + pulse, b.w, b.h);
+
+                // Paku sudut 4 titik ala Mario
+                ctx.fillStyle = '#1E293B';
+                ctx.fillRect(b.x + 4, drawY + pulse + 4, 3, 3);
+                ctx.fillRect(b.x + b.w - 7, drawY + pulse + 4, 3, 3);
+                ctx.fillRect(b.x + 4, drawY + pulse + b.h - 7, 3, 3);
+                ctx.fillRect(b.x + b.w - 7, drawY + pulse + b.h - 7, 3, 3);
+
+                // Simbol di dalam blok
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                if (!st.answered) {
+                    ctx.fillStyle = '#78350F';
+                    ctx.font = 'bold 22px "Press Start 2P", monospace';
+                    ctx.fillText('?', b.x + b.w / 2 + 1, drawY + pulse + b.h / 2 + 2);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillText('?', b.x + b.w / 2, drawY + pulse + b.h / 2);
+                } else {
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = 'bold 22px sans-serif';
+                    ctx.fillText(st.isCorrect ? '✓' : '✗', b.x + b.w / 2, drawY + pulse + b.h / 2 + 1);
+                }
+
+                // Label Nomor Pos di atas blok
+                ctx.fillStyle = '#1E293B';
+                ctx.fillRect(b.x + 8, drawY + pulse - 20, b.w - 16, 16);
+                ctx.fillStyle = '#FEF08A';
+                ctx.font = 'bold 10px "Plus Jakarta Sans", sans-serif';
+                ctx.fillText(`#${b.id}`, b.x + b.w / 2, drawY + pulse - 12);
+            });
+
+            // 8. Koin Emas Melayang
+            coins.forEach(c => {
+                if (c.collected || c.x < cameraX - 30 || c.x > cameraX + V_WIDTH + 30) return;
+                const spinW = Math.max(4, Math.abs(Math.cos(frameCount * 0.08 + c.x * 0.01)) * c.r);
+                ctx.fillStyle = '#FACC15';
+                ctx.beginPath();
+                ctx.ellipse(c.x, c.y + Math.sin(frameCount * 0.08) * 3, spinW, c.r, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#A16207';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            // 9. Musuh Jamur Lucu (Goomba)
+            enemies.forEach(e => {
+                if (e.x < cameraX - 50 || e.x > cameraX + V_WIDTH + 50) return;
+                if (!e.alive && e.squishTimer <= 0) return;
+
+                if (!e.alive) {
+                    // Jamur gepeng setelah diinjak
+                    ctx.fillStyle = '#92400E';
+                    ctx.fillRect(e.x, e.y + 22, e.w, 12);
+                    return;
+                }
+
+                // Kepala jamur coklat
+                ctx.fillStyle = '#9A3412';
+                ctx.beginPath();
+                ctx.arc(e.x + e.w / 2, e.y + 15, 17, Math.PI, 0);
+                ctx.lineTo(e.x + e.w, e.y + 24);
+                ctx.lineTo(e.x, e.y + 24);
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = '#431407';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Mata galak lucu
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(e.x + 8, e.y + 11, 6, 7);
+                ctx.fillRect(e.x + 20, e.y + 11, 6, 7);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(e.x + 10, e.y + 13, 3, 4);
+                ctx.fillRect(e.x + 21, e.y + 13, 3, 4);
+
+                // Kaki berjalan
+                const step = Math.sin(frameCount * 0.2) * 3;
+                ctx.fillStyle = '#1E293B';
+                ctx.fillRect(e.x + 4 + step, e.y + 24, 10, 10);
+                ctx.fillRect(e.x + 20 - step, e.y + 24, 10, 10);
+            });
+
+            // 10. Tiang Bendera & Kastil Kemenangan di Akhir Dunia
+            if (FLAG_X > cameraX - 100 && FLAG_X < cameraX + V_WIDTH + 350) {
+                // Tiang Bendera
+                ctx.fillStyle = '#E2E8F0';
+                ctx.fillRect(FLAG_X, GROUND_Y - 220, 8, 220);
+                ctx.fillStyle = '#FACC15';
+                ctx.beginPath();
+                ctx.arc(FLAG_X + 4, GROUND_Y - 224, 10, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Bendera Merah Putih
+                ctx.fillStyle = '#DC2626';
+                ctx.fillRect(FLAG_X + 8, GROUND_Y - 210, 56, 18);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(FLAG_X + 8, GROUND_Y - 192, 56, 18);
+                ctx.strokeStyle = '#1E293B';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(FLAG_X + 8, GROUND_Y - 210, 56, 36);
+
+                // Kastil Kemenangan
+                const cx = FLAG_X + 110;
+                ctx.fillStyle = '#D97706';
+                ctx.fillRect(cx, GROUND_Y - 140, 140, 140);
+                ctx.fillRect(cx + 30, GROUND_Y - 185, 80, 45);
+                ctx.strokeStyle = '#451A03';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(cx, GROUND_Y - 140, 140, 140);
+                // Pintu Kastil
+                ctx.fillStyle = '#1E293B';
+                ctx.beginPath();
+                ctx.arc(cx + 70, GROUND_Y - 40, 26, Math.PI, 0);
+                ctx.lineTo(cx + 96, GROUND_Y);
+                ctx.lineTo(cx + 44, GROUND_Y);
+                ctx.closePath();
+                ctx.fill();
+                // Teks FINISH
+                ctx.fillStyle = '#FEF08A';
+                ctx.font = 'bold 12px "Press Start 2P", monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText('FINISH', cx + 70, GROUND_Y - 156);
+            }
+
+            // 11. Karakter Pahlawan Pancasila (Ala Super Mario)
+            drawPlayer();
+
+            // 12. Partikel & Floating Text
+            particles.forEach(pt => {
+                if (pt.text) {
+                    ctx.font = 'bold 14px "Plus Jakarta Sans", sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#1E293B';
+                    ctx.fillText(pt.text, pt.x + 1, pt.y + 1);
+                    ctx.fillStyle = pt.color;
+                    ctx.fillText(pt.text, pt.x, pt.y);
+                } else {
+                    ctx.fillStyle = pt.color;
+                    ctx.fillRect(pt.x, pt.y, pt.size, pt.size);
+                }
+            });
+
+            ctx.restore();
+        }
+
+        function drawPlayer() {
+            // Efek berkedip saat kebal sesaat
+            if (player.invincibleTimer > 0 && Math.floor(player.invincibleTimer / 4) % 2 === 0) return;
+
+            ctx.save();
+            const px = player.x;
+            const py = player.y;
+
+            // Balik arah jika menghadap kiri
+            if (player.facing === -1) {
+                ctx.translate(px + player.w / 2, 0);
+                ctx.scale(-1, 1);
+                ctx.translate(-(px + player.w / 2), 0);
+            }
+
+            const legSwing = player.onGround && Math.abs(player.vx) > 0.5 ? Math.sin(player.walkFrame * 2) * 5 : 0;
+
+            // Sepatu Coklat
+            ctx.fillStyle = '#78350F';
+            ctx.fillRect(px + 4 + legSwing, py + 40, 12, 8);
+            ctx.fillRect(px + 20 - legSwing, py + 40, 12, 8);
+
+            // Celana Overall Biru
+            ctx.fillStyle = '#1D4ED8';
+            ctx.fillRect(px + 6, py + 26, 24, 15);
+            // Kancing emas overall
+            ctx.fillStyle = '#FACC15';
+            ctx.fillRect(px + 10, py + 29, 4, 4);
+            ctx.fillRect(px + 22, py + 29, 4, 4);
+
+            // Baju Merah
+            ctx.fillStyle = '#DC2626';
+            ctx.fillRect(px + 4, py + 20, 28, 10);
+
+            // Wajah
+            ctx.fillStyle = '#FDE68A';
+            ctx.fillRect(px + 7, py + 9, 22, 13);
+
+            // Mata
+            ctx.fillStyle = '#0F172A';
+            ctx.fillRect(px + 21, py + 12, 4, 5);
+
+            // Topi Merah Pahlawan + Bintang Garuda Emas
+            ctx.fillStyle = '#DC2626';
+            ctx.fillRect(px + 5, py + 2, 26, 8);
+            ctx.fillRect(px + 5, py + 7, 31, 4); // Lidah topi ke depan
+            // Emblem Emas di topi
+            ctx.fillStyle = '#FACC15';
+            ctx.fillRect(px + 18, py + 3, 6, 4);
+
+            ctx.restore();
+        }
+
+        function gameLoop() {
+            updatePhysics();
+            drawGame();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // =========================================================================
+        // 6. SETUP CANVAS, RESIZE, KEYBOARD, TOUCH & CLICK BLOK '?'
+        // =========================================================================
+        function setupCanvas() {
+            canvas = document.getElementById('game-canvas');
+            ctx = canvas.getContext('2d');
+            canvas.width = V_WIDTH;
+            canvas.height = V_HEIGHT;
+
+            // Klik/Tap langsung pada Blok '?' di Canvas agar anak SD super mudah!
+            canvas.addEventListener('click', (e) => {
+                if (!gameActive || isModalOpen) return;
+                const rect = canvas.getBoundingClientRect();
+                const clickX = ((e.clientX - rect.left) / rect.width) * V_WIDTH + cameraX;
+                const clickY = ((e.clientY - rect.top) / rect.height) * V_HEIGHT;
+
+                for (const b of qBlocks) {
+                    if (clickX >= b.x - 10 && clickX <= b.x + b.w + 10 && clickY >= b.y - 24 && clickY <= b.y + b.h + 10) {
+                        b.bumpOffset = -10;
+                        playSFX('coin');
+                        openQuestionModal(b.index);
+                        return;
+                    }
+                }
+            });
+        }
+
+        function setupControls() {
+            // Keyboard
+            window.addEventListener('keydown', (e) => {
+                if (isModalOpen) return;
+                if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+                if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+                if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Space') {
+                    keys.jump = true;
+                    e.preventDefault();
+                }
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+                if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+                if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Space') keys.jump = false;
+            });
+
+            // Tombol Sentuh & Mouse (HP / Tablet / Desktop)
+            const bindHoldButton = (id, keyName) => {
+                const el = document.getElementById(id);
+                const start = (e) => { e.preventDefault(); keys[keyName] = true; el.classList.add('pressed'); };
+                const end = (e) => { e.preventDefault(); keys[keyName] = false; el.classList.remove('pressed'); };
+                el.addEventListener('touchstart', start, { passive: false });
+                el.addEventListener('touchend', end, { passive: false });
+                el.addEventListener('touchcancel', end, { passive: false });
+                el.addEventListener('mousedown', start);
+                el.addEventListener('mouseup', end);
+                el.addEventListener('mouseleave', end);
+            };
+
+            bindHoldButton('btn-left', 'left');
+            bindHoldButton('btn-right', 'right');
+            bindHoldButton('btn-jump', 'jump');
+        }
+
+        // =========================================================================
+        // 7. ALUR START, MODAL SOAL, PENILAIAN & PETA POS
+        // =========================================================================
+        function startGame() {
+            const nama = document.getElementById('input-nama').value.trim();
+            const absen = document.getElementById('input-absen').value.trim();
+            const kelas = document.getElementById('input-kelas').value.trim() || 'Kelas V';
+            const errBox = document.getElementById('start-error');
+
+            if (!nama || !absen) {
+                errBox.classList.remove('hidden');
+                playSFX('bump');
+                return;
+            }
+
+            errBox.classList.add('hidden');
+            playSFX('victory');
+
+            studentData = { nama, absen, kelas };
+            userAnswers = QUESTIONS.map(() => ({ answered: false, isCorrect: false, userAnswer: null }));
+            totalCoins = 0;
+            secondsElapsed = 0;
+
+            // Reset player & world
+            player.x = 100;
+            player.y = GROUND_Y - player.h;
+            player.vx = 0;
+            player.vy = 0;
+            cameraX = 0;
+            buildWorld();
+
+            document.getElementById('hud-name').textContent = `${nama} (#${absen})`;
+            updateHUD();
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameActive) {
+                    secondsElapsed++;
+                    const m = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+                    const s = String(secondsElapsed % 60).padStart(2, '0');
+                    document.getElementById('hud-timer').textContent = `${m}:${s}`;
+                }
+            }, 1000);
+
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+
+            gameActive = true;
+            isModalOpen = false;
+            showCanvasToast('🍄 Ayo jalan ke kanan & sundul Blok ? #1!');
+        }
+
+        function updateHUD() {
+            document.getElementById('hud-coins').textContent = totalCoins;
+            const answeredCount = userAnswers.filter(a => a.answered).length;
+            document.getElementById('hud-progress').textContent = answeredCount;
+        }
+
+        function openQuestionModal(idx) {
+            activeQuestionIdx = idx;
+            isModalOpen = true;
+            keys.left = keys.right = keys.jump = false;
+
+            const q = QUESTIONS[idx];
+            const st = userAnswers[idx];
+
+            document.getElementById('mq-num').textContent = q.id;
+            document.getElementById('mq-element').textContent = q.element;
+            document.getElementById('mq-text').textContent = q.question;
+
+            const typeEl = document.getElementById('mq-type');
+            if (q.type === 'pg') typeEl.textContent = 'PILIHAN GANDA';
+            else if (q.type === 'pg_kompleks') typeEl.textContent = 'PG KOMPLEKS (PILIH 2 BENAR)';
+            else typeEl.textContent = 'ISIAN SINGKAT';
+
+            const illusEl = document.getElementById('mq-illustration');
+            if (q.illustration) {
+                illusEl.innerHTML = q.illustration;
+                illusEl.classList.remove('hidden');
+            } else {
+                illusEl.classList.add('hidden');
+            }
+
+            const optBox = document.getElementById('mq-options');
+            const isianBox = document.getElementById('mq-isian');
+            const pgkBtnBox = document.getElementById('mq-pgk-submit');
+            const instBox = document.getElementById('mq-instruction');
+            const fbBox = document.getElementById('mq-feedback');
+
+            optBox.innerHTML = '';
+            optBox.classList.add('hidden');
+            isianBox.classList.add('hidden');
+            pgkBtnBox.classList.add('hidden');
+            instBox.classList.add('hidden');
+            fbBox.classList.add('hidden');
+
+            if (q.type === 'pg') {
+                optBox.classList.remove('hidden');
+                const letters = ['A', 'B', 'C', 'D'];
+                q.options.forEach((opt, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'w-full text-left p-3.5 rounded-xl btn-option flex items-start gap-3 cursor-pointer';
+                    btn.disabled = st.answered;
+                    if (st.answered) {
+                        if (i === q.correct) btn.classList.add('correct');
+                        else if (i === st.userAnswer && !st.isCorrect) btn.classList.add('wrong');
+                    }
+                    btn.innerHTML = `
+                        <span class="w-7 h-7 rounded-lg bg-slate-100 border border-slate-300 font-display font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">${letters[i]}</span>
+                        <span class="font-semibold text-sm leading-snug">${opt}</span>
+                    `;
+                    btn.onclick = () => answerPG(i);
+                    optBox.appendChild(btn);
+                });
+            } else if (q.type === 'pg_kompleks') {
+                optBox.classList.remove('hidden');
+                instBox.classList.remove('hidden');
+                instBox.textContent = '💡 Klik tepat 2 (dua) pernyataan yang benar, lalu tekan "Periksa 2 Pilihan Saya".';
+                if (!st.answered) {
+                    tempPGKSelection = [];
+                    pgkBtnBox.classList.remove('hidden');
+                }
+                q.options.forEach((opt, i) => {
+                    const btn = document.createElement('button');
+                    btn.id = `mq-pgk-${i}`;
+                    btn.className = 'w-full text-left p-3.5 rounded-xl btn-option flex items-start gap-3 cursor-pointer';
+                    btn.disabled = st.answered;
+                    let icon = '⬜';
+                    if (st.answered) {
+                        if (q.correct.includes(i)) { btn.classList.add('correct'); icon = '✅'; }
+                        else if (st.userAnswer.includes(i)) { btn.classList.add('wrong'); icon = '❌'; }
+                    }
+                    btn.innerHTML = `<span id="mq-chk-${i}" class="text-lg shrink-0">${icon}</span><span class="font-semibold text-sm leading-snug">${opt}</span>`;
+                    btn.onclick = () => togglePGK(i);
+                    optBox.appendChild(btn);
+                });
+            } else {
+                isianBox.classList.remove('hidden');
+                instBox.classList.remove('hidden');
+                instBox.textContent = '✍️ Ketik jawaban singkat dengan ejaan tepat, lalu klik "Kirim Jawaban".';
+                const inp = document.getElementById('mq-isian-input');
+                const btnSub = document.getElementById('mq-btn-isian');
+                if (st.answered) {
+                    inp.value = st.userAnswer;
+                    inp.disabled = true;
+                    btnSub.classList.add('hidden');
+                } else {
+                    inp.value = '';
+                    inp.disabled = false;
+                    btnSub.classList.remove('hidden');
+                    inp.onkeydown = (e) => { if (e.key === 'Enter') submitIsian(); };
+                    setTimeout(() => inp.focus(), 100);
+                }
+            }
+
+            if (st.answered) showModalFeedback(st.isCorrect, q);
+
+            document.getElementById('modal-question').classList.remove('hidden');
+        }
+
+        function answerPG(choiceIdx) {
+            if (userAnswers[activeQuestionIdx].answered) return;
+            const q = QUESTIONS[activeQuestionIdx];
+            const ok = choiceIdx === q.correct;
+            recordAnswer(ok, choiceIdx);
+        }
+
+        function togglePGK(i) {
+            if (userAnswers[activeQuestionIdx].answered) return;
+            const pos = tempPGKSelection.indexOf(i);
+            if (pos > -1) tempPGKSelection.splice(pos, 1);
+            else {
+                if (tempPGKSelection.length >= 2) tempPGKSelection.shift();
+                tempPGKSelection.push(i);
+            }
+            QUESTIONS[activeQuestionIdx].options.forEach((_, idx) => {
+                const b = document.getElementById(`mq-pgk-${idx}`);
+                const c = document.getElementById(`mq-chk-${idx}`);
+                if (tempPGKSelection.includes(idx)) { b.classList.add('selected'); c.textContent = '☑️'; }
+                else { b.classList.remove('selected'); c.textContent = '⬜'; }
+            });
+        }
+
+        function submitPGKompleks() {
+            if (userAnswers[activeQuestionIdx].answered) return;
+            if (tempPGKSelection.length === 0) {
+                document.getElementById('mq-instruction').textContent = '⚠️ Pilih 2 pernyataan terlebih dahulu ya!';
+                playSFX('bump');
+                return;
+            }
+            const q = QUESTIONS[activeQuestionIdx];
+            const u = [...tempPGKSelection].sort((a, b) => a - b);
+            const c = [...q.correct].sort((a, b) => a - b);
+            recordAnswer(JSON.stringify(u) === JSON.stringify(c), u);
+        }
+
+        function normalizeAnswer(str) {
+            return str.toLowerCase().trim().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '').replace(/\s+/g, ' ');
+        }
+
+        function submitIsian() {
+            if (userAnswers[activeQuestionIdx].answered) return;
+            const inp = document.getElementById('mq-isian-input');
+            const val = inp.value.trim();
+            if (!val) {
+                document.getElementById('mq-instruction').textContent = '⚠️ Kotak jawaban masih kosong! Ketik jawabanmu dulu.';
+                playSFX('bump');
+                return;
+            }
+            const q = QUESTIONS[activeQuestionIdx];
+            const clean = normalizeAnswer(val);
+            const ok = q.acceptedAnswers.some(a => {
+                const ca = normalizeAnswer(a);
+                return clean === ca || (ca.length >= 5 && clean.includes(ca));
+            });
+            recordAnswer(ok, val);
+        }
+
+        function recordAnswer(isCorrect, userAnswer) {
+            userAnswers[activeQuestionIdx] = { answered: true, isCorrect, userAnswer };
+            const blk = qBlocks[activeQuestionIdx];
+
+            if (isCorrect) {
+                totalCoins += 25;
+                playSFX('coin');
+                spawnParticles(blk.x + blk.w / 2, blk.y, '#22C55E', '+25 Koin!');
+            } else {
+                playSFX('bump');
+                spawnParticles(blk.x + blk.w / 2, blk.y, '#EF4444', 'Belajar Lagi!');
+            }
+
+            updateHUD();
+            openQuestionModal(activeQuestionIdx);
+        }
+
+        function showModalFeedback(isCorrect, q) {
+            const fb = document.getElementById('mq-feedback');
+            const icon = document.getElementById('mq-fb-icon');
+            const title = document.getElementById('mq-fb-title');
+            const keyEl = document.getElementById('mq-fb-key');
+            const textEl = document.getElementById('mq-fb-text');
+
+            fb.classList.remove('hidden');
+            if (isCorrect) {
+                fb.className = 'mt-5 p-4 rounded-2xl border-2 bg-emerald-50 border-emerald-500 text-emerald-950 animate-pop';
+                icon.textContent = '🌟';
+                title.textContent = 'BENAR! +25 Koin Emas!';
+                keyEl.classList.add('hidden');
+            } else {
+                fb.className = 'mt-5 p-4 rounded-2xl border-2 bg-red-50 border-red-400 text-red-950 animate-pop';
+                icon.textContent = '💡';
+                title.textContent = 'Belum Tepat! Yuk Cek Kuncinya:';
+                keyEl.classList.remove('hidden');
+                if (q.type === 'isian') keyEl.textContent = `🔑 Jawaban benar: ${q.displayAnswer}`;
+                else if (q.type === 'pg_kompleks') keyEl.textContent = `🔑 Benar: ${q.correct.map(i => `"${q.options[i]}"`).join(' & ')}`;
+                else keyEl.textContent = `🔑 Jawaban benar: ${['A', 'B', 'C', 'D'][q.correct]}. ${q.options[q.correct]}`;
+            }
+            textEl.textContent = q.explanation;
+
+            const nextBtn = document.getElementById('mq-btn-warp-next');
+            const allDone = userAnswers.every(a => a.answered);
+            nextBtn.textContent = allDone ? '🏰 Ke Kastil & Lihat Nilai!' : '⚡ Lanjut Pos Berikutnya';
+        }
+
+        function closeQuestionModal() {
+            document.getElementById('modal-question').classList.add('hidden');
+            isModalOpen = false;
+        }
+
+        function warpToNextQuestion() {
+            closeQuestionModal();
+            const nextUnanswered = userAnswers.findIndex((a, i) => !a.answered && i > activeQuestionIdx);
+            const fallbackUnanswered = userAnswers.findIndex(a => !a.answered);
+            const target = nextUnanswered !== -1 ? nextUnanswered : fallbackUnanswered;
+
+            if (target === -1) {
+                openFinishConfirm();
+                return;
+            }
+            warpPlayerToBlock(target);
+        }
+
+        function openNearestUnanswered() {
+            if (!gameActive || isModalOpen) return;
+            const nextIdx = userAnswers.findIndex(a => !a.answered);
+            if (nextIdx === -1) {
+                openFinishConfirm();
+                return;
+            }
+            warpPlayerToBlock(nextIdx);
+            openQuestionModal(nextIdx);
+        }
+
+        function warpPlayerToBlock(idx) {
+            const b = qBlocks[idx];
+            player.x = b.x - 10;
+            player.y = GROUND_Y - player.h;
+            player.vx = 0;
+            player.vy = -8;
+            cameraX = Math.max(0, player.x - V_WIDTH * 0.35);
+            playSFX('jump');
+            showCanvasToast(`📍 Pos Soal #${idx + 1} siap disundul!`);
+        }
+
+        // --- Modal Peta Pos (1-40) ---
+        function openMapModal() {
+            isModalOpen = true;
+            const gPG = document.getElementById('map-grid-pg');
+            const gIs = document.getElementById('map-grid-isian');
+            gPG.innerHTML = '';
+            gIs.innerHTML = '';
+
+            QUESTIONS.forEach((q, i) => {
+                const st = userAnswers[i];
+                const btn = document.createElement('button');
+                btn.textContent = q.id;
+                btn.className = 'h-9 rounded-lg font-bold text-xs cursor-pointer border-2 transition ';
+                if (st.answered) {
+                    btn.className += st.isCorrect
+                        ? 'bg-emerald-500 border-emerald-700 text-white'
+                        : 'bg-red-500 border-red-700 text-white';
+                } else {
+                    btn.className += 'bg-amber-300 border-slate-800 text-slate-900 hover:bg-amber-400';
+                }
+                btn.onclick = () => {
+                    closeMapModal();
+                    warpPlayerToBlock(i);
+                };
+                if (q.id <= 20) gPG.appendChild(btn);
+                else gIs.appendChild(btn);
+            });
+
+            document.getElementById('modal-map').classList.remove('hidden');
+        }
+
+        function closeMapModal() {
+            document.getElementById('modal-map').classList.add('hidden');
+            isModalOpen = false;
+        }
+
+        // =========================================================================
+        // 8. SELESAI GAME & KIRIM LAPORAN KE WA BU ITA (082313237217)
+        // =========================================================================
+        function openFinishConfirm() {
+            isModalOpen = true;
+            const answered = userAnswers.filter(a => a.answered).length;
+            const left = QUESTIONS.length - answered;
+            const msg = document.getElementById('confirm-msg');
+            if (left > 0) {
+                msg.innerHTML = `Kamu sudah membuka <strong>${answered}/40</strong> blok soal. Masih ada <strong class="text-red-600">${left} soal</strong> yang belum dijawab. Yakin ingin melihat nilai akhir sekarang?`;
+            } else {
+                msg.innerHTML = `Hebat! Seluruh <strong>40 blok soal</strong> sudah kamu selesaikan! Yuk masuk ke Kastil Kemenangan dan kirim hasilmu ke <strong>Bu Ita</strong>!`;
+            }
+            document.getElementById('modal-confirm').classList.remove('hidden');
+        }
+
+        function closeFinishConfirm() {
+            document.getElementById('modal-confirm').classList.add('hidden');
+            isModalOpen = false;
+        }
+
+        function formatDuration(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return m === 0 ? `${s} detik` : `${m} menit ${s} detik`;
+        }
+
+        function finishGame() {
+            closeFinishConfirm();
+            gameActive = false;
+            clearInterval(timerInterval);
+            playSFX('victory');
+
+            let pgCorrect = 0;
+            let isianCorrect = 0;
+            let wrongNums = [];
+
+            userAnswers.forEach((a, idx) => {
+                if (a.isCorrect) {
+                    if (idx < 20) pgCorrect++;
+                    else isianCorrect++;
+                } else {
+                    wrongNums.push(QUESTIONS[idx].id);
+                }
+            });
+
+            const score = Math.round(((pgCorrect + isianCorrect) / QUESTIONS.length) * 100);
+            const durText = formatDuration(secondsElapsed);
+
+            document.getElementById('result-student-info').textContent = `${studentData.nama} • ${studentData.kelas} • No. Absen ${studentData.absen}`;
+            document.getElementById('result-score').textContent = score;
+            document.getElementById('res-pg').textContent = pgCorrect;
+            document.getElementById('res-isian').textContent = isianCorrect;
+            document.getElementById('res-coins').textContent = totalCoins;
+            document.getElementById('res-time').textContent = durText;
+
+            const trophy = document.getElementById('result-trophy');
+            const pred = document.getElementById('result-predicate');
+            if (score >= 90) { trophy.textContent = '🏆'; pred.textContent = 'Luar Biasa! Super Bintang Pancasila!'; }
+            else if (score >= 75) { trophy.textContent = '🥇'; pred.textContent = 'Hebat Sekali! Pahlawan Pancasila!'; }
+            else if (score >= 60) { trophy.textContent = '🥈'; pred.textContent = 'Bagus! Terus Berlatih Lagi!'; }
+            else { trophy.textContent = '🍄'; pred.textContent = 'Tetap Semangat Petualang Cilik!'; }
+
+            const wrongStr = wrongNums.length > 0 ? wrongNums.join(', ') : 'Tidak ada (Semua Benar!)';
+            document.getElementById('res-wrong-list').textContent = wrongNums.length > 0
+                ? `Soal nomor: ${wrongStr} (${wrongNums.length} soal)`
+                : 'Sempurna! Semua 40 soal dijawab dengan benar!';
+
+            latestReportText =
+`*LAPORAN HASIL SUPER PANCASILA BROS*
+_Asesmen Sumatif Akhir Semester Ganjil Kelas V_
+-----------------------------------
+👤 *Nama Siswa* : ${studentData.nama}
+🏫 *Kelas* : ${studentData.kelas}
+🔢 *No. Absen* : ${studentData.absen}
+-----------------------------------
+🏆 *SKOR AKHIR* : *${score} / 100*
+✅ *Pilihan Ganda* : ${pgCorrect} dari 20 benar
+✍️ *Isian Singkat* : ${isianCorrect} dari 20 benar
+🪙 *Koin Terkumpul* : ${totalCoins} koin
+⏱️ *Waktu Bermain* : ${durText}
+-----------------------------------
+📌 *Nomor Perlu Belajar Lagi* :
+${wrongStr}
+
+Terima kasih Bu Ita 🙏🇮🇩`;
+
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function sendToWhatsApp() {
+            playSFX('coin');
+            const phone = '6282313237217'; // Nomor WA Bu Ita: 082313237217
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(latestReportText)}`;
+            window.open(url, '_blank');
+        }
+
+        function copyReport() {
+            playSFX('coin');
+            const ta = document.createElement('textarea');
+            ta.value = latestReportText;
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                const toast = document.getElementById('copy-toast');
+                toast.classList.remove('hidden');
+                setTimeout(() => toast.classList.add('hidden'), 3500);
+            } catch (e) {}
+            document.body.removeChild(ta);
+        }
+
+        function restartGame() {
+            playSFX('jump');
+            gameActive = false;
+            clearInterval(timerInterval);
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-start').classList.remove('hidden');
+        }
+
+        // Mulai engine setelah window onload
+        window.onload = function () {
+            setupCanvas();
+            setupControls();
+            buildWorld();
+            gameLoop();
+        };
+    </script>
+</body>
+</html>
